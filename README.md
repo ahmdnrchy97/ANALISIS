@@ -3,509 +3,667 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mega Finance - Analyst Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Mega Finance - Professional Analysis Suite</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    
     <style>
+        /* --- VARIABLES --- */
         :root {
-            --primary: #2563eb; --primary-dark: #1e40af;
-            --secondary: #f59e0b;
-            --success: #10b981; --danger: #ef4444;
-            --bg: #f3f4f6; --card-bg: #ffffff;
-            --text-main: #1f2937; --text-sub: #6b7280;
-            --shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --mf-blue: #003366;
+            --mf-blue-dark: #002244;
+            --mf-orange: #F8991D;
+            --bg-body: #F2F5F9;
+            --white: #ffffff;
+            --text-main: #1A1A1A;
+            --text-sub: #6E7A93;
+            --border: #E0E5F2;
+            --shadow: 0 10px 30px rgba(0, 51, 102, 0.08);
+            --success: #00C853; 
+            --error: #FF3D00;
         }
 
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; line-height: 1.5; scroll-behavior: smooth; }
-
-        /* HEADER */
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 40px 20px 60px 20px;
-            text-align: center;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: var(--shadow);
-        }
-        header h1 { margin: 0; font-weight: 800; font-size: 2rem; letter-spacing: -0.5px; }
-        header p { margin: 10px 0 0; opacity: 0.9; font-weight: 300; font-size: 1rem; }
-
-        /* NAVIGASI */
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: -30px;
-            margin-bottom: 40px;
-            padding: 0 20px;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-        }
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 12px 25px;
-            border-radius: 50px;
-            text-decoration: none;
+        body { 
+            margin: 0; padding: 0; 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--bg-body); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
             color: var(--text-main);
-            font-weight: 600;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: 0.3s;
-            border: 1px solid white;
-        }
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--secondary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px rgba(245, 158, 11, 0.3);
         }
 
-        /* CONTAINER */
-        .container { max-width: 900px; margin: 0 auto; padding: 0 20px 50px 20px; }
-
-        /* CARD STYLE */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            padding: 40px;
-            margin-bottom: 40px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.6s ease-out forwards;
-        }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        
-        .card-header {
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 460px;
+            background: var(--white);
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f3f4f6;
-            padding-bottom: 20px;
+            flex-direction: column;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.05);
+            z-index: 1000;
+            position: relative;
         }
-        .card-icon {
-            width: 50px; height: 50px;
-            background: #eff6ff; color: var(--primary);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-        }
-        .card-title h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); }
-        .card-title p { margin: 5px 0 0; font-size: 0.85rem; color: var(--text-sub); }
 
-        /* FORM ELEMENTS */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-main); }
-        input, select, textarea {
-            width: 100%; padding: 14px;
-            border: 1px solid #e5e7eb; border-radius: 10px;
-            font-size: 1rem; transition: 0.2s;
-            font-family: inherit; background: #f9fafb;
+        /* --- STICKY HEADER --- */
+        .sidebar-header {
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+            flex-shrink: 0;
         }
-        input:focus, select:focus, textarea:focus {
-            background: white; border-color: var(--primary); outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        textarea { resize: vertical; min-height: 100px; }
 
-        /* BUTTONS */
-        .btn-action {
-            background: var(--primary); color: white;
-            border: none; padding: 16px; width: 100%;
-            border-radius: 12px; font-weight: 700; font-size: 1rem;
-            cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .logo-area {
+            padding: 20px 0;
+            text-align: center;
         }
-        .btn-action:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn-action:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .logo-area img { max-width: 160px; transition: transform 0.3s; }
+        .logo-area img:hover { transform: scale(1.05); }
 
-        /* RESULT BOX */
-        .result-panel {
-            background: #1f2937; color: white;
-            border-radius: 16px; padding: 30px;
-            margin-top: 25px; text-align: center;
-            display: none; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* --- TABS MENU --- */
+        .nav-tabs {
+            display: flex;
+            padding: 0 10px;
+            position: relative;
         }
-        .res-label { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; opacity: 0.7; margin-bottom: 5px; }
-        .res-value { font-size: 2.5rem; font-weight: 800; color: var(--secondary); margin: 0; line-height: 1.2; }
-        .res-sub { font-size: 0.9rem; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); opacity: 0.9; }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--mf-orange);
+            border-radius: 3px 3px 0 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-item.active { color: var(--mf-blue); background: #F8F9FA; }
+        .nav-item.active::after { width: 70%; }
+        .nav-item:hover { color: var(--mf-blue); }
+
+        /* --- CONTENT AREA --- */
+        .sidebar-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 25px;
+            scrollbar-width: thin;
+        }
+
+        /* FIX: Class ini yang mengontrol pergantian tab */
+        .tool-section { 
+            display: none; 
+            animation: fadeIn 0.4s ease-out; 
+        }
+        .tool-section.active { display: block; }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        h2 {
+            font-size: 18px; color: var(--mf-blue); margin: 0 0 20px 0;
+            font-weight: 700; display: flex; align-items: center; gap: 10px;
+        }
+        h2::before {
+            content: ''; display: block; width: 5px; height: 24px;
+            background: var(--mf-orange); border-radius: 4px;
+        }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 18px; }
+        label {
+            font-size: 12px; color: var(--text-sub); font-weight: 600;
+            margin-bottom: 6px; display: block;
+        }
+
+        .form-control {
+            width: 100%; padding: 12px 15px;
+            border: 1px solid var(--border); border-radius: 10px;
+            font-size: 14px; color: var(--text-main); font-family: 'Poppins', sans-serif;
+            background: #FAFAFA; transition: 0.3s; box-sizing: border-box;
+        }
+        .form-control:focus {
+            background: #fff; border-color: var(--mf-blue);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); outline: none;
+        }
+
+        /* --- TOGGLE --- */
+        .toggle-switch {
+            background: #EDF2F7; padding: 4px; border-radius: 10px;
+            display: flex; margin-bottom: 15px;
+        }
+        .toggle-opt {
+            flex: 1; padding: 8px; text-align: center;
+            font-size: 13px; font-weight: 500; color: var(--text-sub);
+            border-radius: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .toggle-opt.active {
+            background: var(--white); color: var(--mf-blue);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08); font-weight: 700;
+        }
+
+        /* --- BUTTON --- */
+        .btn-primary {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, var(--mf-blue) 0%, #002244 100%);
+            color: white; border: none; border-radius: 12px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(0, 51, 102, 0.2);
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 51, 102, 0.3); }
+
+        /* --- RESULT CARD --- */
+        .card-result {
+            margin-top: 25px; background: white;
+            border-radius: 12px; box-shadow: var(--shadow);
+            overflow: hidden; display: none; border: 1px solid var(--border);
+            opacity: 0; transform: translateY(15px); transition: 0.5s;
+        }
+        /* Class untuk memicu animasi CSS */
+        .card-result.show-animate { opacity: 1; transform: translateY(0); display: block; }
+
+        .card-header {
+            padding: 15px; text-align: center; font-weight: 700; color: white;
+            font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .bg-ok { background: linear-gradient(135deg, #05CD99, #02Aab0); }
+        .bg-fail { background: linear-gradient(135deg, #FF3D00, #c43c30); }
+        .bg-info { background: linear-gradient(135deg, var(--mf-orange), #ff9966); }
+
+        .card-body { padding: 20px; }
+
+        /* Animation for Rows (Cascade Effect) */
+        .data-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border);
+            opacity: 0; transform: translateX(-10px);
+        }
         
-        .badge { display: inline-block; padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 700; margin-top: 15px; }
-        .bg-ok { background: #dcfce7; color: #166534; }
-        .bg-fail { background: #fee2e2; color: #991b1b; }
+        .card-result.show-animate .data-row { animation: slideRow 0.5s forwards; }
+        .card-result.show-animate .data-row:nth-child(1) { animation-delay: 0.1s; }
+        .card-result.show-animate .data-row:nth-child(2) { animation-delay: 0.2s; }
+        .card-result.show-animate .data-row:nth-child(3) { animation-delay: 0.3s; }
+        .card-result.show-animate .data-row:nth-child(4) { animation-delay: 0.4s; }
+        .card-result.show-animate .data-row:nth-child(5) { animation-delay: 0.5s; }
 
-        /* MANUAL MODE */
-        #manualMode { display: none; background: #fff7ed; border: 1px dashed var(--secondary); padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .link-map { color: var(--secondary); font-weight: 700; text-decoration: none; display: block; margin-bottom: 10px; font-size: 0.9rem; }
+        @keyframes slideRow { to { opacity: 1; transform: translateX(0); } }
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .grid-2 { grid-template-columns: 1fr; }
-            header h1 { font-size: 1.5rem; }
-            nav { flex-wrap: wrap; }
+        .data-row:last-child { border: none; padding-bottom: 0; margin-bottom: 0; }
+        .lbl { font-size: 12px; color: var(--text-sub); }
+        .val { font-size: 14px; font-weight: 700; color: var(--text-main); text-align: right; }
+        .val-highlight { color: var(--mf-blue); font-size: 15px; }
+        .money-text { color: var(--success); font-weight: 800; font-size: 16px; }
+
+        /* --- MAP & LOADING --- */
+        #map { flex-grow: 1; height: 100%; width: 100%; z-index: 1; }
+        .loading-state { text-align: center; font-size: 12px; color: var(--mf-orange); margin-top: 10px; display: none; font-weight: 600; }
+        
+        .info-pill {
+            background: #E3F2FD; color: var(--mf-blue); padding: 8px 12px;
+            border-radius: 8px; font-size: 11px; margin-top: 5px;
+            display: none; align-items: center; gap: 6px;
         }
-
-        /* ANIMATIONS */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Credit Analyst Workspace</h1>
-    <p>Integrated Tools • Mega Finance MDP</p>
-</header>
-
-<nav>
-    <a href="#coverage" class="nav-btn active" onclick="switchTab(this)">📍 Cek Coverage</a>
-    <a href="#padi" class="nav-btn" onclick="switchTab(this)">🌾 Kalkulator Padi</a>
-</nav>
-
-<div class="container">
-
-    <div id="coverage" class="card">
-        <div class="card-header">
-            <div class="card-icon">📍</div>
-            <div class="card-title">
-                <h2>Smart Coverage Check</h2>
-                <p>Cek jarak otomatis dengan deep-parsing alamat.</p>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label>1. Pilih Kantor Cabang</label>
-            <select id="cabangSelect" onchange="resetCoverageUI()">
-                <option value="">-- Cari Nama Kota/Cabang --</option>
-            </select>
-            <small id="cabangAddress" style="display:block; margin-top:5px; color:var(--text-sub); font-size:0.85rem;">-</small>
-        </div>
-
-        <div class="input-group">
-            <label>2. Alamat Lengkap Konsumen</label>
-            <textarea id="alamatInput" placeholder="Contoh: PERUM. BUKIT SEJAHTERA BLOK BX-18 RT. 017 RW. 004 Kel. Karang Jaya Kec. Gandus Kota Palembang" oninput="resetCoverageUI()"></textarea>
-        </div>
-
-        <button id="btnProses" onclick="prosesCoverageSmart()" class="btn-action">🚀 Hitung Jarak</button>
-
-        <div id="resultBox" class="result-panel">
-            <div class="res-label">Jarak Garis Lurus</div>
-            <div id="txtJarak" class="res-value">0 Km</div>
-            <div class="res-sub">Batas Max: <span id="txtLimit">-</span></div>
-            <div id="badgeStatus" class="badge">STATUS</div>
-        </div>
-
-        <div id="manualMode">
-            <strong>⚠️ Lokasi Sulit Ditemukan</strong><br>
-            <small style="color:var(--text-sub)">Gunakan Google Maps untuk akurasi:</small><br><br>
-            <a id="linkGmaps" href="#" target="_blank" class="link-map">🗺️ Buka Google Maps & Copy Koordinat</a>
-            <input type="text" id="coordInput" placeholder="Paste: -6.xxxx, 106.xxxx" style="margin-bottom:10px;">
-            <button onclick="hitungManual()" class="btn-action" style="background:var(--secondary);">Hitung Manual</button>
-        </div>
-    </div>
-
-
-    <div id="padi" class="card">
-        <div class="card-header">
-            <div class="card-icon">🌾</div>
-            <div class="card-title">
-                <h2>Kalkulator Kapasitas Bayar</h2>
-                <p>Estimasi pendapatan petani padi berdasarkan data BPS.</p>
-            </div>
-        </div>
-
-        <div class="grid-2">
-            <div class="input-group">
-                <label>Wilayah (Kab/Kota)</label>
-                <select id="kota" onchange="isiProduktivitas()">
-                    <option value="">-- Pilih Wilayah --</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Produktivitas (Kg/Ha)</label>
-                <input type="number" id="prod" readonly style="background:#f3f4f6;">
-            </div>
-            <div class="input-group">
-                <label>Luas Lahan (Ha)</label>
-                <input type="number" id="luas" value="1" step="0.1" oninput="hitungPadi()">
-            </div>
-            <div class="input-group">
-                <label>Harga Gabah (Rp/Kg)</label>
-                <input type="number" id="harga" value="6500" oninput="hitungPadi()">
-            </div>
-            <div class="input-group">
-                <label>Panen per Tahun</label>
-                <input type="number" id="siklus" value="2" oninput="hitungPadi()">
-            </div>
-            <div class="input-group">
-                <label>Margin Bersih (%)</label>
-                <input type="number" id="margin" value="40" oninput="hitungPadi()">
-            </div>
-        </div>
-
-        <div id="padiResult" class="result-panel" style="display:block; margin-top:10px; background:#f0fdf4; color:var(--text-main); border:1px solid #bbf7d0;">
-            <div class="res-label" style="color:var(--text-sub);">ESTIMASI INCOME BERSIH / BULAN</div>
-            <div id="txtIncomeBulan" class="res-value" style="color:#15803d;">Rp 0</div>
-            <div class="res-sub" style="border-top-color:#dcfce7;">
-                Omset per Panen: <strong id="txtOmset">Rp 0</strong>
-            </div>
-        </div>
-    </div>
-
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">
+    <img src="https://www.megafinance.co.id/wp-content/smush-webp/2023/10/Logo-Mega-Finance.png.webp" alt="Mega Finance">
 </div>
+            <div class="nav-tabs">
+                <div class="nav-item active" onclick="switchTab('coverage', this)">Cek Coverage</div>
+                <div class="nav-item" onclick="switchTab('usia', this)">Kalkulator Usia</div>
+                <div class="nav-item" onclick="switchTab('padi', this)">Analisa Padi</div>
+            </div>
+        </div>
 
-<footer>© 2026 Mega Finance MDP Tools</footer>
-
-<script>
-    /* =========================================
-       LOGIKA UMUM (TABS)
-    ========================================= */
-    function switchTab(el) {
-        // Reset active class
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    /* =========================================
-       LOGIKA 1: SMART COVERAGE (V.10)
-    ========================================= */
-    const dbCabang = [
-        { kode: "BGZ", nama: "BOGOR (BGZ)", region: "JABODETABEK", lat: -6.597623, lon: 106.790326, alamat: "Jl. Veteran no.49 ABC Panaragan,Bogor" },
-        { kode: "BEZ", nama: "BEKASI (BEZ)", region: "JABODETABEK", lat: -6.240432, lon: 106.995632, alamat: "JL. Sersan Aswan no.9 Bekasi" },
-        { kode: "DPZ", nama: "DEPOK (DPZ)", region: "JABODETABEK", lat: -6.375321, lon: 106.833412, alamat: "JL. Margonda raya no.299 A Depok" },
-        { kode: "FMZ", nama: "FATMAWATI (FMZ)", region: "JABODETABEK", lat: -6.275123, lon: 106.797231, alamat: "Jl. Fatmawati Raya No 52 B-C" },
-        { kode: "CBZ", nama: "CIBUBUR (CBZ)", region: "JABODETABEK", lat: -6.371234, lon: 106.890123, alamat: "Jl. Raya Kranggan Ruko Villa The Lima Kav. 15. Kel. Jatisampurna, Kec. Jatisampurna, Kota Bekasi 17433" },
-        { kode: "BDZ", nama: "BANDUNG & PADALARANG ELE (BDZ)", region: "JAWA", lat: -6.925621, lon: 107.636512, alamat: "Jl. Gatot Subroto No. 278 Kec Batununggal Kel Lingkungan Gumuruh, Kota Bandung, Jawa Barat" },
-        { kode: "SBZ", nama: "SURABAYA ELEKTRONIK (SBZ)", region: "JAWA", lat: -7.283123, lon: 112.765432, alamat: "Jl. Kertajaya Indah Timur Blk 16A-03, Komplek Ruko Mega Galaxy, Kel. Klampisngasem, Kec. Sukolilo Surabaya" },
-        { kode: "SEZ", nama: "SEMARANG (SEZ)", region: "JAWA", lat: -7.001234, lon: 110.432123, alamat: "Ruko Metroplaza Blok C10 C11, Jl. MT. Haryono No. 970, Kel. Lamper Kidul, Kec. Semarang Selatan, Semarang" },
-        { kode: "AMK", nama: "AIR MOLEK (AMK)", region: "LUAR JAWA", lat: -0.369200, lon: 102.293500, alamat: "Jl. Jend. Sudirman No.10, Air Molek II, Riau" },
-        { kode: "BPZ", nama: "BALIKPAPAN (BPZ)", region: "LUAR JAWA", lat: -1.246700, lon: 116.866500, alamat: "Ruko Palace 8 Jl. MT Haryono, Balikpapan" },
-        { kode: "BLZ", nama: "BANDAR LAMPUNG (BLZ)", region: "LUAR JAWA", lat: -5.433600, lon: 105.274200, alamat: "Jl. Jend. Gatot Subroto No 41B, Bandar Lampung" },
-        { kode: "BJZ", nama: "BANJARMASIN (BJZ)", region: "LUAR JAWA", lat: -3.364900, lon: 114.638400, alamat: "Jl. Ahmad Yani Km 8,8, Banjarmasin" },
-        { kode: "BWZ", nama: "BANYUWANGI (BWZ)", region: "JAWA", lat: -8.307222, lon: 114.298333, alamat: "Jl. Raya Jember-Banyuwangi, Banyuwangi" },
-        { kode: "BAZ", nama: "BATAM (BAZ)", region: "LUAR JAWA", lat: 1.045626, lon: 103.957589, alamat: "Komplek Ruko Sinar Jaya No. 08, Batam" },
-        { kode: "BKZ", nama: "BENGKULU (BKZ)", region: "LUAR JAWA", lat: -3.819777, lon: 102.304494, alamat: "Jl. Pangeran Natadirja KM 6,5, Bengkulu" },
-        { kode: "BTZ", nama: "BLITAR (BTZ)", region: "JAWA", lat: -8.101417, lon: 112.167222, alamat: "JL. Anjasmoro No 5C, Blitar" },
-        { kode: "BRZ", nama: "BOJONEGORO (BRZ)", region: "JAWA", lat: -7.164167, lon: 111.886389, alamat: "Jl. Veteran, Bojonegoro" },
-        { kode: "BOZ", nama: "BONE (BOZ)", region: "LUAR JAWA", lat: -4.542222, lon: 120.318056, alamat: "Jl. Gn Jayawijaya Ruko C, Bone" },
-        { kode: "CMZ", nama: "CIAMIS (CMZ)", region: "JAWA", lat: -7.327500, lon: 108.336111, alamat: "Jl. Jendral Sudirman No. 02, Ciamis" },
-        { kode: "CJZ", nama: "CIANJUR (CJZ)", region: "JAWA", lat: -6.816600, lon: 107.136400, alamat: "Jl. KH. Abdullah Bin Nuh No. 175, Cianjur" },
-        { kode: "CNZ", nama: "CIKARANG (CNZ)", region: "JABODETABEK", lat: -6.257500, lon: 107.065500, alamat: "Ruko Tambun City, Bekasi" },
-        { kode: "CKZ", nama: "CIKUPA (CKZ)", region: "JABODETABEK", lat: -6.241900, lon: 106.522200, alamat: "Citra Raya, Tangerang" },
-        { kode: "CLZ", nama: "CILACAP (CLZ)", region: "JAWA", lat: -7.720800, lon: 109.006900, alamat: "Jl. Gatot Subroto No.25, Cilacap" },
-        { kode: "SRZ", nama: "CILEGON (SRZ)", region: "JAWA", lat: -6.108300, lon: 106.137500, alamat: "Jl. Raya Cilegon No. 4, Serang" },
-        { kode: "CIZ", nama: "CILEUNGSI (CIZ)", region: "JABODETABEK", lat: -6.481100, lon: 106.851900, alamat: "Jl. Raya Bogor KM 42, Bogor" },
-        { kode: "CRZ", nama: "CIREBON (CRZ)", region: "JAWA", lat: -6.721400, lon: 108.553900, alamat: "Komplek Ruko CSB Gold Sunset 11, Cirebon" },
-        { kode: "DAZ", nama: "DAYA MM (DAZ)", region: "LUAR JAWA", lat: -5.114700, lon: 119.507500, alamat: "Jl. Perintis Kemerdekaan, Makassar" },
-        { kode: "DNZ", nama: "DENPASAR (DNZ)", region: "LUAR JAWA", lat: -8.670458, lon: 115.212629, alamat: "Jl. Imam Bonjol No 341A, Denpasar" },
-        { kode: "DUZ", nama: "DUMAI (DUZ)", region: "LUAR JAWA", lat: 1.670300, lon: 101.435500, alamat: "Jl. Sultan Hasanuddin No. 99, Dumai" },
-        { kode: "DRZ", nama: "DURI (DRZ)", region: "LUAR JAWA", lat: 1.285000, lon: 101.215000, alamat: "Jl. Hangtuah, Duri" },
-        { kode: "GRZ", nama: "GORONTALO (GRZ)", region: "LUAR JAWA", lat: 0.537500, lon: 123.063300, alamat: "Jl. Prof. Dr. HB Jassin, Gorontalo" },
-        { kode: "GGZ", nama: "GREEN GARDEN (GGZ)", region: "JABODETABEK", lat: -6.195500, lon: 106.765800, alamat: "Jl. Srengseng Raya, Jakarta Barat" },
-        { kode: "GSZ", nama: "GRESIK (GSZ)", region: "JAWA", lat: -7.165800, lon: 112.635500, alamat: "Jl. Dr. Wahidin Sudirohusodo, Gresik" },
-        { kode: "JBZ", nama: "JAMBI (JBZ)", region: "LUAR JAWA", lat: -1.615200, lon: 103.605500, alamat: "Jl. Hayam Wuruk Ruko No. 18, Jambi" },
-        { kode: "JMZ", nama: "JOMBANG (JMZ)", region: "JAWA", lat: -7.555200, lon: 112.235500, alamat: "Jl. Soekarno Hatta, Jombang" },
-        { kode: "KMZ", nama: "KALIMALANG (KMZ)", region: "JABODETABEK", lat: -6.235500, lon: 106.905500, alamat: "Jl. Pahlawan Revolusi, Jakarta Timur" },
-        { kode: "KRZ", nama: "KARAWANG (KRZ)", region: "JAWA", lat: -6.305500, lon: 107.285500, alamat: "Grand Taruma, Karawang" },
-        { kode: "KIZ", nama: "KEDIRI (KIZ)", region: "JAWA", lat: -7.805500, lon: 112.015500, alamat: "Jl. Dandangan Gendis, Kediri" },
-        { kode: "KND", nama: "KENDARI (KND)", region: "LUAR JAWA", lat: -4.025551, lon: 122.508282, alamat: "Jl. Di Panjaitan No.7, Kendari" },
-        { kode: "KLZ", nama: "KLATEN (KLZ)", region: "JAWA", lat: -7.703000, lon: 110.601000, alamat: "Jl. Bhayangkara No.26, Klaten" },
-        { kode: "KUZ", nama: "KUDUS (KUZ)", region: "JAWA", lat: -6.806000, lon: 110.842000, alamat: "Jl. Pramuka No.368, Kudus" },
-        { kode: "KNZ", nama: "KUNINGAN (KNZ)", region: "JAWA", lat: -6.968359, lon: 108.489710, alamat: "Jl. RE. Martadinata No.32, Kuningan" },
-        { kode: "LBZ", nama: "LUBUK LINGGAU (LBZ)", region: "LUAR JAWA", lat: -3.267800, lon: 102.937100, alamat: "Jl. Yos Sudarso, Lubuk Linggau" },
-        { kode: "LPZ", nama: "LUBUK PAKAM (LPZ)", region: "LUAR JAWA", lat: 3.558000, lon: 98.875000, alamat: "Jl. Jend. Sudirman, Lubuk Pakam" },
-        { kode: "MAZ", nama: "MADIUN (MAZ)", region: "JAWA", lat: -7.595800, lon: 111.541100, alamat: "Jl. Raya Nglames, Madiun" },
-        { kode: "MGZ", nama: "MAJALENGKA (MGZ)", region: "JAWA", lat: -6.821359, lon: 108.242852, alamat: "Jl. Raya Cicenang, Majalengka" },
-        { kode: "MKZ", nama: "MAKASAR (MKZ)", region: "JAWA", lat: -5.147665, lon: 119.432731, alamat: "Jl. Pelita Raya, Makassar" },
-        { kode: "MLZ", nama: "MALANG (MLZ)", region: "JAWA", lat: -7.942000, lon: 112.617000, alamat: "Jl. Soekarno Hatta, Malang" },
-        { kode: "MTZ", nama: "MATARAM (MTZ)", region: "LUAR JAWA", lat: -8.588000, lon: 116.105000, alamat: "Jl. Airlangga No. 25E, Mataram" },
-        { kode: "MDZ", nama: "MEDAN (MDZ)", region: "LUAR JAWA", lat: 3.567000, lon: 98.650000, alamat: "Jl. Setia Budi, Medan" },
-        { kode: "MJZ", nama: "MOJOKERTO (MJZ)", region: "JAWA", lat: -7.466400, lon: 112.443700, alamat: "Jl. Pekayon I No. 25, Mojokerto" },
-        { kode: "MRZ", nama: "MUARA ENIM (MRZ)", region: "LUAR JAWA", lat: -3.654700, lon: 103.775300, alamat: "Jl. Jendral Sudirman No. 33, Muara Enim" },
-        { kode: "PDZ", nama: "PADALARANG (PDZ)", region: "JAWA", lat: -6.867500, lon: 107.517500, alamat: "Jl. Gadobangkong, Padalarang" },
-        { kode: "PGY", nama: "PAGUYAMAN (PGY)", region: "LUAR JAWA", lat: 0.710000, lon: 122.580000, alamat: "Jl. Poros Sukamakmur, Gorontalo" },
-        { kode: "PGZ", nama: "PALEMBANG (PGZ)", region: "LUAR JAWA", lat: -2.955000, lon: 104.720000, alamat: "Jl Soekarno Hatta No 7-8, Palembang" },
-        { kode: "PLZ", nama: "PALOPO (PLZ)", region: "LUAR JAWA", lat: -2.978000, lon: 120.195000, alamat: "Jl. Batara Lattu, Palopo" },
-        { kode: "PAZ", nama: "PALU (PAZ)", region: "LUAR JAWA", lat: -0.905000, lon: 119.875000, alamat: "Jl. Jendral Basuki Rahmat, Palu" },
-        { kode: "PMZ", nama: "PAMULANG (PMZ)", region: "JABODETABEK", lat: -6.342800, lon: 106.752700, alamat: "Jl. Puspitek No.49, Tangerang Selatan" },
-        { kode: "PNZ", nama: "PANDAAN (PNZ)", region: "JAWA", lat: -7.660000, lon: 112.680000, alamat: "Jl. Raya Surabaya - Malang, Pasuruan" },
-        { kode: "PRZ", nama: "PARE-PARE (PRZ)", region: "LUAR JAWA", lat: -4.016700, lon: 119.623600, alamat: "Jl. H. Agussalim, Parepare" },
-        { kode: "PKZ", nama: "PEKALONGAN (PKZ)", region: "JAWA", lat: -6.889000, lon: 109.675000, alamat: "Ruko Dupan Square, Pekalongan" },
-        { kode: "PBZ", nama: "PEKANBARU (PBZ)", region: "LUAR JAWA", lat: 0.485000, lon: 101.430000, alamat: "Jl. Arifin Ahmad, Pekanbaru" },
-        { kode: "PMS", nama: "PEMATANG SIANTAR (PMS)", region: "LUAR JAWA", lat: 2.960000, lon: 99.080000, alamat: "Jl. Asahan KM 3, Pematang Siantar" },
-        { kode: "PZZ", nama: "PURWAKARTA (PZZ)", region: "JAWA", lat: -6.556100, lon: 107.442800, alamat: "Jl. Ipik Gandhamanah, Purwakarta" },
-        { kode: "PUZ", nama: "PURWODADI (PUZ)", region: "JAWA", lat: -7.086400, lon: 110.915800, alamat: "Ruko Cahaya Griya Mandiri, Purwodadi" },
-        { kode: "PWZ", nama: "PURWOKERTO (PWZ)", region: "JAWA", lat: -7.424400, lon: 109.239200, alamat: "Jl. Kol Sugiono No. 41, Purwokerto" },
-        { kode: "RWZ", nama: "RAWASARI (RWZ)", region: "JABODETABEK", lat: -6.168300, lon: 106.876400, alamat: "Komp. Ruko Mega Grosir Cempaka Mas, Jakarta" },
-        { kode: "STZ", nama: "SALATIGA (STZ)", region: "JAWA", lat: -7.330500, lon: 110.508400, alamat: "Ruko Emperium Centra Niaga, Semarang" },
-        { kode: "SAZ", nama: "SAMARINDA (SAZ)", region: "LUAR JAWA", lat: -0.491700, lon: 117.145800, alamat: "Jl. Abd. Wahab Syahrani, Samarinda" },
-        { kode: "SGT", nama: "SANGATTA (SGT)", region: "LUAR JAWA", lat: 0.505000, lon: 117.538300, alamat: "Jl. Pendidikan, Sangatta" },
-        { kode: "SEZ", nama: "SEMARANG (SEZ)", region: "JAWA", lat: -7.001234, lon: 110.432123, alamat: "Jl. MT. Haryono, Semarang" },
-        { kode: "SGZ", nama: "SEMARANG 2 (SGZ)", region: "JAWA", lat: -7.027000, lon: 110.505000, alamat: "Jl. Raya Bandung Rejo, Demak" },
-        { kode: "TGZ", nama: "TANGERANG (TGZ)", region: "JABODETABEK", lat: -6.213300, lon: 106.619200, alamat: "Jl. Imam Bonjol, Tangerang" },
-        { kode: "SPZ", nama: "SERPONG (SPZ)", region: "JABODETABEK", lat: -6.242500, lon: 106.626700, alamat: "Ruko Fluorite Blok FR, Tangerang" },
-        { kode: "SDZ", nama: "SIDOARJO (SDZ)", region: "JAWA", lat: -7.447800, lon: 112.718300, alamat: "Komplek Ruko Tiara Town Square, Sidoarjo" },
-        { kode: "SLZ", nama: "SOLO (SLZ)", region: "JAWA", lat: -7.604200, lon: 110.816700, alamat: "New Mariposa Blok FH, Sukoharjo" },
-        { kode: "SSZ", nama: "STABAT (SSZ)", region: "LUAR JAWA", lat: 3.733300, lon: 98.450000, alamat: "Jl. Proklamasi No. 11, Langkat" },
-        { kode: "SKZ", nama: "SUKABUMI (SKZ)", region: "JAWA", lat: -6.921400, lon: 106.903300, alamat: "Jl. Raya Cibolang, Sukabumi" },
-        { kode: "SMZ", nama: "SUMEDANG (SMZ)", region: "JAWA", lat: -6.858600, lon: 107.920800, alamat: "Jl. Swadaya, Sumedang" },
-        { kode: "SBZ", nama: "SURABAYA (SBZ)", region: "JAWA", lat: -7.283123, lon: 112.765432, alamat: "Jl. Kertajaya Indah Timur, Surabaya" },
-        { kode: "SUZ", nama: "SURABAYA 2 (SUZ)", region: "JAWA", lat: -7.295000, lon: 112.715000, alamat: "Ruko Villa Bukit Mas, Surabaya" },
-        { kode: "TPZ", nama: "TAMAN PALEM (TPZ)", region: "JABODETABEK", lat: -6.137500, lon: 106.702500, alamat: "Citra Garden 7, Jakarta Barat" },
-        { kode: "TGM", nama: "PASAR KEMIS (TGM)", region: "JABODETABEK", lat: -6.170800, lon: 106.561100, alamat: "Jl. Raya Pasar Kemis, Tangerang" },
-        { kode: "TJG", nama: "TANJUNG (TJG)", region: "LUAR JAWA", lat: -2.175000, lon: 115.383300, alamat: "Jl. Ir. PHM Noor, Tabalong" },
-        { kode: "TAR", nama: "TARAKAN (TAR)", region: "LUAR JAWA", lat: 3.315000, lon: 117.580000, alamat: "Jl. Bhayangkara, Tarakan" },
-        { kode: "TEZ", nama: "TEGAL (TEZ)", region: "JAWA", lat: -6.874400, lon: 109.143000, alamat: "Ruko Palm Town House, Tegal" },
-        { kode: "TGO", nama: "TENGGARONG (TGO)", region: "LUAR JAWA", lat: -0.435000, lon: 116.985000, alamat: "Jl. Pesut No. 22, Tenggarong" },
-        { kode: "TMU", nama: "TUGU MULYO (TMU)", region: "LUAR JAWA", lat: -3.868000, lon: 104.888000, alamat: "Jl. Lintas Timur, Ogan Komering Ilir" },
-        { kode: "WRZ", nama: "WARU (WRZ)", region: "JAWA", lat: -7.363000, lon: 112.726000, alamat: "Ruko Juanda Business Centre, Sidoarjo" },
-        { kode: "YGZ", nama: "YOGYAKARTA (YGZ)", region: "JAWA", lat: -7.795580, lon: 110.369490 }
-    ];
-
-    const select = document.getElementById('cabangSelect');
-    dbCabang.sort((a,b) => a.nama.localeCompare(b.nama)).forEach(c => {
-        let opt = document.createElement('option');
-        opt.value = c.kode; opt.text = c.nama; select.add(opt);
-    });
-
-    function resetCoverageUI() {
-        document.getElementById('resultBox').style.display = 'none';
-        document.getElementById('manualMode').style.display = 'none';
-        let cab = dbCabang.find(c => c.kode === select.value);
-        document.getElementById('cabangAddress').innerText = cab ? cab.alamat : "-";
-    }
-
-    async function prosesCoverageSmart() {
-        let kode = select.value;
-        let addr = document.getElementById('alamatInput').value.trim();
-        if(!kode || !addr) { alert("Lengkapi data cabang dan alamat!"); return; }
-
-        let btn = document.getElementById('btnProses');
-        btn.disabled = true;
-        btn.innerText = "⏳ Menganalisa...";
-        document.getElementById('resultBox').style.display = 'none';
-        document.getElementById('manualMode').style.display = 'none';
-
-        try {
-            let cab = dbCabang.find(c => c.kode === kode);
-            let coordCab = { lat: cab.lat, lon: cab.lon };
+        <div class="sidebar-content">
             
-            // SMART PARSING
-            let query = smartParser(addr) || addr.replace(/RT.*?RW.*? /gi, ""); 
-            let coordKons = await getCoordinates(query);
+            <div id="tool-coverage" class="tool-section active">
+                <h2>📍 Analisa Jarak</h2>
+                <div class="form-group">
+                    <label>1. Pilih Kantor Cabang</label>
+                    <select id="cabang" class="form-control">
+                        <option value="">-- Memuat Data --</option>
+                    </select>
+                    <div id="infoCabang" class="info-pill"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>2. Lokasi Nasabah</label>
+                    <div class="toggle-switch">
+                        <div class="toggle-opt active" onclick="setCovMode('alamat')" id="btnAlamat">Nama Jalan</div>
+                        <div class="toggle-opt" onclick="setCovMode('kordinat')" id="btnKordinat">Koordinat</div>
+                    </div>
+                    <div id="boxAlamat">
+                        <input type="text" id="alamat" class="form-control" placeholder="Contoh: Jl. Sudirman No. 10">
+                    </div>
+                    <div id="boxKordinat" style="display:none; gap:10px; display:flex;">
+                        <input type="number" id="latInput" class="form-control" placeholder="Lat">
+                        <input type="number" id="lonInput" class="form-control" placeholder="Lon">
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="hitungCoverage()"><span>🔍</span> Hitung Jarak</button>
+                <div id="loadCov" class="loading-state">⏳ Sedang Menghitung...</div>
+
+                <div id="resCov" class="card-result">
+                    <div id="headCov" class="card-header"></div>
+                    <div class="card-body">
+                        <div class="data-row"><span class="lbl">Jarak Tempuh</span><span class="val" id="outJarak">-</span></div>
+                        <div class="data-row"><span class="lbl">Region</span><span class="val" id="outRegion">-</span></div>
+                        <div class="data-row"><span class="lbl">Batas Max</span><span class="val" id="outMax">-</span></div>
+                        <div class="data-row"><span class="lbl">Estimasi Waktu (30 km/j)</span><span class="val" id="outWaktu">-</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tool-usia" class="tool-section">
+                <h2>🎂 Cek Usia Kredit</h2>
+                <div class="form-group"><label>Lahir Pengaju</label><input type="date" id="dobP" class="form-control"></div>
+                <div class="form-group"><label>Lahir Pasangan</label><input type="date" id="dobPas" class="form-control"></div>
+                <div class="form-group"><label>Tenor (Bulan)</label><input type="number" id="tenor" class="form-control" placeholder="12, 24, 36"></div>
+                
+                <button class="btn-primary" onclick="hitungUsia()"><span>📝</span> Analisa</button>
+
+                <div id="resUsia" class="card-result">
+                    <div id="headUsia" class="card-header bg-info">HASIL ANALISA</div>
+                    <div class="card-body">
+                        <div class="data-row"><span class="lbl">Usia Pengaju</span><span class="val val-highlight" id="outUP">-</span></div>
+                        <div class="data-row"><span class="lbl">Usia Pasangan</span><span class="val val-highlight" id="outUPas">-</span></div>
+                        <div style="border-top:1px dashed #ddd; margin:10px 0;"></div>
+                        <div class="data-row"><span class="lbl">Pengaju + Tenor</span><span class="val val-highlight" id="outUPEnd">-</span></div>
+                        <div class="data-row"><span class="lbl">Pasangan + Tenor</span><span class="val val-highlight" id="outUPasEnd">-</span></div>
+                        <div style="text-align:center; font-size:10px; color:red; margin-top:10px;">* Max Usia Akhir: 60 Tahun</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tool-padi" class="tool-section">
+                <h2>🌾 Analisa Padi</h2>
+                <div class="form-group">
+                    <label>Wilayah</label>
+                    <select id="padiArea" class="form-control"><option value="">-- Pilih --</option></select>
+                </div>
+                <div class="form-group"><label>Luas (Ha)</label><input type="number" id="luas" class="form-control" placeholder="Contoh: 2"></div>
+                <div class="form-group">
+                    <label>Harga GKG (Editable)</label>
+                    <input type="number" id="harga" class="form-control" value="6500" style="color:var(--mf-blue); font-weight:bold;">
+                </div>
+                <div class="form-group">
+                    <label>Panen per Tahun</label>
+                    <select id="freq" class="form-control">
+                        <option value="1">1 Kali</option>
+                        <option value="2">2 Kali</option>
+                        <option value="3">3 Kali</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" onclick="hitungPadi()"><span>💰</span> Hitung Pendapatan</button>
+
+                <div id="resPadi" class="card-result">
+                    <div class="card-header bg-info">PROYEKSI PENDAPATAN</div>
+                    <div class="card-body">
+                        <div class="data-row"><span class="lbl">Produktivitas</span><span class="val" id="outProd">-</span></div>
+                        <div class="data-row"><span class="lbl">Total Panen</span><span class="val" id="outTotal">-</span></div>
+                        <div class="data-row"><span class="lbl">Omzet Kotor</span><span class="val" id="outGross">-</span></div>
+                        <div class="data-row"><span class="lbl">Net (Margin 40%)</span><span class="val money-text" id="outNet">-</span></div>
+                        <div style="border-top:1px dashed #ddd; margin:10px 0;"></div>
+                        <div style="text-align:center;">
+                            <span class="lbl">ASUMSI PENDAPATAN / BULAN</span><br>
+                            <span class="val money-text" id="outMonth" style="font-size:20px; color:var(--mf-orange);">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // --- DATA ---
+        const dbCabang = [
+            { kode: "BGZ", nama: "BOGOR (BGZ)", region: "JABODETABEK", lat: -6.597623, lon: 106.790326, alamat: "Jl. Veteran no.49 ABC, Bogor" },
+            { kode: "BEZ", nama: "BEKASI (BEZ)", region: "JABODETABEK", lat: -6.240432, lon: 106.995632, alamat: "JL. Sersan Aswan no.9 Bekasi" },
+            { kode: "DPZ", nama: "DEPOK (DPZ)", region: "JABODETABEK", lat: -6.375321, lon: 106.833412, alamat: "JL. Margonda Raya Depok" },
+            { kode: "FMZ", nama: "FATMAWATI (FMZ)", region: "JABODETABEK", lat: -6.275123, lon: 106.797231, alamat: "Jl. Fatmawati Raya No 52 B-C" },
+            { kode: "CBZ", nama: "CIBUBUR (CBZ)", region: "JABODETABEK", lat: -6.371234, lon: 106.890123, alamat: "Jl. Raya Kranggan Ruko Villa The Lima Kav. 15. Kel. Jatisampurna, Kec. Jatisampurna, Kota Bekasi 17433" },
+            { kode: "BDZ", nama: "BANDUNG & PADALARANG ELE (BDZ)", region: "JAWA", lat: -6.925621, lon: 107.636512, alamat: "Jl. Gatot Subroto No. 278 Kec Batununggal Kel Lingkungan Gumuruh, Kota Bandung, Jawa Barat" },
+            { kode: "SBZ", nama: "SURABAYA ELEKTRONIK (SBZ)", region: "JAWA", lat: -7.283123, lon: 112.765432, alamat: "Jl. Kertajaya Indah Timur Blk 16A-03, Komplek Ruko Mega Galaxy, Kel. Klampisngasem, Kec. Sukolilo Surabaya" },
+            { kode: "SEZ", nama: "SEMARANG (SEZ)", region: "JAWA", lat: -7.001234, lon: 110.432123, alamat: "Ruko Metroplaza Blok C10 C11, Jl. MT. Haryono No. 970, Kel. Lamper Kidul, Kec. Semarang Selatan, Semarang" },
+            { kode: "AMK", nama: "AIR MOLEK (AMK)", region: "LUAR JAWA", lat: -0.369200, lon: 102.293500, alamat: "Jl. Jend. Sudirman No.10, Air Molek II, Riau" },
+            { kode: "BPZ", nama: "BALIKPAPAN (BPZ)", region: "LUAR JAWA", lat: -1.246700, lon: 116.866500, alamat: "Ruko Palace 8 Jl. MT Haryono, Balikpapan" },
+            { kode: "BLZ", nama: "BANDAR LAMPUNG (BLZ)", region: "LUAR JAWA", lat: -5.433600, lon: 105.274200, alamat: "Jl. Jend. Gatot Subroto No 41B, Bandar Lampung" },
+            { kode: "BJZ", nama: "BANJARMASIN (BJZ)", region: "LUAR JAWA", lat: -3.364900, lon: 114.638400, alamat: "Jl. Ahmad Yani Km 8,8, Banjarmasin" },
+            { kode: "BWZ", nama: "BANYUWANGI (BWZ)", region: "JAWA", lat: -8.307222, lon: 114.298333, alamat: "Jl. Raya Jember-Banyuwangi, Banyuwangi" },
+            { kode: "BAZ", nama: "BATAM (BAZ)", region: "LUAR JAWA", lat: 1.045626, lon: 103.957589, alamat: "Komplek Ruko Sinar Jaya No. 08, Batam" },
+            { kode: "BKZ", nama: "BENGKULU (BKZ)", region: "LUAR JAWA", lat: -3.819777, lon: 102.304494, alamat: "Jl. Pangeran Natadirja KM 6,5, Bengkulu" },
+            { kode: "BTZ", nama: "BLITAR (BTZ)", region: "JAWA", lat: -8.101417, lon: 112.167222, alamat: "JL. Anjasmoro No 5C, Blitar" },
+            { kode: "BRZ", nama: "BOJONEGORO (BRZ)", region: "JAWA", lat: -7.164167, lon: 111.886389, alamat: "Jl. Veteran, Bojonegoro" },
+            { kode: "BOZ", nama: "BONE (BOZ)", region: "LUAR JAWA", lat: -4.542222, lon: 120.318056, alamat: "Jl. Gn Jayawijaya Ruko C, Bone" },
+            { kode: "CMZ", nama: "CIAMIS (CMZ)", region: "JAWA", lat: -7.327500, lon: 108.336111, alamat: "Jl. Jendral Sudirman No. 02, Ciamis" },
+            { kode: "CJZ", nama: "CIANJUR (CJZ)", region: "JAWA", lat: -6.816600, lon: 107.136400, alamat: "Jl. KH. Abdullah Bin Nuh No. 175, Cianjur" },
+            { kode: "CNZ", nama: "CIKARANG (CNZ)", region: "JABODETABEK", lat: -6.257500, lon: 107.065500, alamat: "Ruko Tambun City, Bekasi" },
+            { kode: "CKZ", nama: "CIKUPA (CKZ)", region: "JABODETABEK", lat: -6.241900, lon: 106.522200, alamat: "Citra Raya, Tangerang" },
+            { kode: "CLZ", nama: "CILACAP (CLZ)", region: "JAWA", lat: -7.720800, lon: 109.006900, alamat: "Jl. Gatot Subroto No.25, Cilacap" },
+            { kode: "SRZ", nama: "CILEGON (SRZ)", region: "JAWA", lat: -6.108300, lon: 106.137500, alamat: "Jl. Raya Cilegon No. 4, Serang" },
+            { kode: "CIZ", nama: "CILEUNGSI (CIZ)", region: "JABODETABEK", lat: -6.481100, lon: 106.851900, alamat: "Jl. Raya Bogor KM 42, Bogor" },
+            { kode: "CRZ", nama: "CIREBON (CRZ)", region: "JAWA", lat: -6.721400, lon: 108.553900, alamat: "Komplek Ruko CSB Gold Sunset 11, Cirebon" },
+            { kode: "DAZ", nama: "DAYA MM (DAZ)", region: "LUAR JAWA", lat: -5.114700, lon: 119.507500, alamat: "Jl. Perintis Kemerdekaan, Makassar" },
+            { kode: "DNZ", nama: "DENPASAR (DNZ)", region: "LUAR JAWA", lat: -8.670458, lon: 115.212629, alamat: "Jl. Imam Bonjol No 341A, Denpasar" },
+            { kode: "DUZ", nama: "DUMAI (DUZ)", region: "LUAR JAWA", lat: 1.670300, lon: 101.435500, alamat: "Jl. Sultan Hasanuddin No. 99, Dumai" },
+            { kode: "DRZ", nama: "DURI (DRZ)", region: "LUAR JAWA", lat: 1.285000, lon: 101.215000, alamat: "Jl. Hangtuah, Duri" },
+            { kode: "GRZ", nama: "GORONTALO (GRZ)", region: "LUAR JAWA", lat: 0.537500, lon: 123.063300, alamat: "Jl. Prof. Dr. HB Jassin, Gorontalo" },
+            { kode: "GGZ", nama: "GREEN GARDEN (GGZ)", region: "JABODETABEK", lat: -6.195500, lon: 106.765800, alamat: "Jl. Srengseng Raya, Jakarta Barat" },
+            { kode: "GSZ", nama: "GRESIK (GSZ)", region: "JAWA", lat: -7.165800, lon: 112.635500, alamat: "Jl. Dr. Wahidin Sudirohusodo, Gresik" },
+            { kode: "JBZ", nama: "JAMBI (JBZ)", region: "LUAR JAWA", lat: -1.615200, lon: 103.605500, alamat: "Jl. Hayam Wuruk Ruko No. 18, Jambi" },
+            { kode: "JMZ", nama: "JOMBANG (JMZ)", region: "JAWA", lat: -7.555200, lon: 112.235500, alamat: "Jl. Soekarno Hatta, Jombang" },
+            { kode: "KMZ", nama: "KALIMALANG (KMZ)", region: "JABODETABEK", lat: -6.235500, lon: 106.905500, alamat: "Jl. Pahlawan Revolusi, Jakarta Timur" },
+            { kode: "KRZ", nama: "KARAWANG (KRZ)", region: "JAWA", lat: -6.305500, lon: 107.285500, alamat: "Grand Taruma, Karawang" },
+            { kode: "KIZ", nama: "KEDIRI (KIZ)", region: "JAWA", lat: -7.805500, lon: 112.015500, alamat: "Jl. Dandangan Gendis, Kediri" },
+            { kode: "KND", nama: "KENDARI (KND)", region: "LUAR JAWA", lat: -4.025551, lon: 122.508282, alamat: "Jl. Di Panjaitan No.7, Kendari" },
+            { kode: "KLZ", nama: "KLATEN (KLZ)", region: "JAWA", lat: -7.703000, lon: 110.601000, alamat: "Jl. Bhayangkara No.26, Klaten" },
+            { kode: "KUZ", nama: "KUDUS (KUZ)", region: "JAWA", lat: -6.806000, lon: 110.842000, alamat: "Jl. Pramuka No.368, Kudus" },
+            { kode: "KNZ", nama: "KUNINGAN (KNZ)", region: "JAWA", lat: -6.968359, lon: 108.489710, alamat: "Jl. RE. Martadinata No.32, Kuningan" },
+            { kode: "LBZ", nama: "LUBUK LINGGAU (LBZ)", region: "LUAR JAWA", lat: -3.267800, lon: 102.937100, alamat: "Jl. Yos Sudarso, Lubuk Linggau" },
+            { kode: "LPZ", nama: "LUBUK PAKAM (LPZ)", region: "LUAR JAWA", lat: 3.558000, lon: 98.875000, alamat: "Jl. Jend. Sudirman, Lubuk Pakam" },
+            { kode: "MAZ", nama: "MADIUN (MAZ)", region: "JAWA", lat: -7.595800, lon: 111.541100, alamat: "Jl. Raya Nglames, Madiun" },
+            { kode: "MGZ", nama: "MAJALENGKA (MGZ)", region: "JAWA", lat: -6.821359, lon: 108.242852, alamat: "Jl. Raya Cicenang, Majalengka" },
+            { kode: "MKZ", nama: "MAKASAR (MKZ)", region: "JAWA", lat: -5.147665, lon: 119.432731, alamat: "Jl. Pelita Raya, Makassar" },
+            { kode: "MLZ", nama: "MALANG (MLZ)", region: "JAWA", lat: -7.942000, lon: 112.617000, alamat: "Jl. Soekarno Hatta, Malang" },
+            { kode: "MTZ", nama: "MATARAM (MTZ)", region: "LUAR JAWA", lat: -8.588000, lon: 116.105000, alamat: "Jl. Airlangga No. 25E, Mataram" },
+            { kode: "MDZ", nama: "MEDAN (MDZ)", region: "LUAR JAWA", lat: 3.567000, lon: 98.650000, alamat: "Jl. Setia Budi, Medan" },
+            { kode: "MJZ", nama: "MOJOKERTO (MJZ)", region: "JAWA", lat: -7.466400, lon: 112.443700, alamat: "Jl. Pekayon I No. 25, Mojokerto" },
+            { kode: "MRZ", nama: "MUARA ENIM (MRZ)", region: "LUAR JAWA", lat: -3.654700, lon: 103.775300, alamat: "Jl. Jendral Sudirman No. 33, Muara Enim" },
+            { kode: "PDZ", nama: "PADALARANG (PDZ)", region: "JAWA", lat: -6.867500, lon: 107.517500, alamat: "Jl. Gadobangkong, Padalarang" },
+            { kode: "PGY", nama: "PAGUYAMAN (PGY)", region: "LUAR JAWA", lat: 0.710000, lon: 122.580000, alamat: "Jl. Poros Sukamakmur, Gorontalo" },
+            { kode: "PGZ", nama: "PALEMBANG (PGZ)", region: "LUAR JAWA", lat: -2.955000, lon: 104.720000, alamat: "Jl Soekarno Hatta No 7-8, Palembang" },
+            { kode: "PLZ", nama: "PALOPO (PLZ)", region: "LUAR JAWA", lat: -2.978000, lon: 120.195000, alamat: "Jl. Batara Lattu, Palopo" },
+            { kode: "PAZ", nama: "PALU (PAZ)", region: "LUAR JAWA", lat: -0.905000, lon: 119.875000, alamat: "Jl. Jendral Basuki Rahmat, Palu" },
+            { kode: "PMZ", nama: "PAMULANG (PMZ)", region: "JABODETABEK", lat: -6.342800, lon: 106.752700, alamat: "Jl. Puspitek No.49, Tangerang Selatan" },
+            { kode: "PNZ", nama: "PANDAAN (PNZ)", region: "JAWA", lat: -7.660000, lon: 112.680000, alamat: "Jl. Raya Surabaya - Malang, Pasuruan" },
+            { kode: "PRZ", nama: "PARE-PARE (PRZ)", region: "LUAR JAWA", lat: -4.016700, lon: 119.623600, alamat: "Jl. H. Agussalim, Parepare" },
+            { kode: "PKZ", nama: "PEKALONGAN (PKZ)", region: "JAWA", lat: -6.889000, lon: 109.675000, alamat: "Ruko Dupan Square, Pekalongan" },
+            { kode: "PBZ", nama: "PEKANBARU (PBZ)", region: "LUAR JAWA", lat: 0.485000, lon: 101.430000, alamat: "Jl. Arifin Ahmad, Pekanbaru" },
+            { kode: "PMS", nama: "PEMATANG SIANTAR (PMS)", region: "LUAR JAWA", lat: 2.960000, lon: 99.080000, alamat: "Jl. Asahan KM 3, Pematang Siantar" },
+            { kode: "PZZ", nama: "PURWAKARTA (PZZ)", region: "JAWA", lat: -6.556100, lon: 107.442800, alamat: "Jl. Ipik Gandhamanah, Purwakarta" },
+            { kode: "PUZ", nama: "PURWODADI (PUZ)", region: "JAWA", lat: -7.086400, lon: 110.915800, alamat: "Ruko Cahaya Griya Mandiri, Purwodadi" },
+            { kode: "PWZ", nama: "PURWOKERTO (PWZ)", region: "JAWA", lat: -7.424400, lon: 109.239200, alamat: "Jl. Kol Sugiono No. 41, Purwokerto" },
+            { kode: "RWZ", nama: "RAWASARI (RWZ)", region: "JABODETABEK", lat: -6.168300, lon: 106.876400, alamat: "Komp. Ruko Mega Grosir Cempaka Mas, Jakarta" },
+            { kode: "STZ", nama: "SALATIGA (STZ)", region: "JAWA", lat: -7.330500, lon: 110.508400, alamat: "Ruko Emperium Centra Niaga, Semarang" },
+            { kode: "SAZ", nama: "SAMARINDA (SAZ)", region: "LUAR JAWA", lat: -0.491700, lon: 117.145800, alamat: "Jl. Abd. Wahab Syahrani, Samarinda" },
+            { kode: "SGT", nama: "SANGATTA (SGT)", region: "LUAR JAWA", lat: 0.505000, lon: 117.538300, alamat: "Jl. Pendidikan, Sangatta" },
+            { kode: "SGZ", nama: "SEMARANG 2 (SGZ)", region: "JAWA", lat: -7.027000, lon: 110.505000, alamat: "Jl. Raya Bandung Rejo, Demak" },
+            { kode: "TGZ", nama: "TANGERANG (TGZ)", region: "JABODETABEK", lat: -6.213300, lon: 106.619200, alamat: "Jl. Imam Bonjol, Tangerang" },
+            { kode: "SPZ", nama: "SERPONG (SPZ)", region: "JABODETABEK", lat: -6.242500, lon: 106.626700, alamat: "Ruko Fluorite Blok FR, Tangerang" },
+            { kode: "SDZ", nama: "SIDOARJO (SDZ)", region: "JAWA", lat: -7.447800, lon: 112.718300, alamat: "Komplek Ruko Tiara Town Square, Sidoarjo" },
+            { kode: "SLZ", nama: "SOLO (SLZ)", region: "JAWA", lat: -7.604200, lon: 110.816700, alamat: "New Mariposa Blok FH, Sukoharjo" },
+            { kode: "SSZ", nama: "STABAT (SSZ)", region: "LUAR JAWA", lat: 3.733300, lon: 98.450000, alamat: "Jl. Proklamasi No. 11, Langkat" },
+            { kode: "SKZ", nama: "SUKABUMI (SKZ)", region: "JAWA", lat: -6.921400, lon: 106.903300, alamat: "Jl. Raya Cibolang, Sukabumi" },
+            { kode: "SMZ", nama: "SUMEDANG (SMZ)", region: "JAWA", lat: -6.858600, lon: 107.920800, alamat: "Jl. Swadaya, Sumedang" },
+            { kode: "SUZ", nama: "SURABAYA 2 (SUZ)", region: "JAWA", lat: -7.295000, lon: 112.715000, alamat: "Ruko Villa Bukit Mas, Surabaya" },
+            { kode: "TPZ", nama: "TAMAN PALEM (TPZ)", region: "JABODETABEK", lat: -6.137500, lon: 106.702500, alamat: "Citra Garden 7, Jakarta Barat" },
+            { kode: "TGM", nama: "PASAR KEMIS (TGM)", region: "JABODETABEK", lat: -6.170800, lon: 106.561100, alamat: "Jl. Raya Pasar Kemis, Tangerang" },
+            { kode: "TJG", nama: "TANJUNG (TJG)", region: "LUAR JAWA", lat: -2.175000, lon: 115.383300, alamat: "Jl. Ir. PHM Noor, Tabalong" },
+            { kode: "TAR", nama: "TARAKAN (TAR)", region: "LUAR JAWA", lat: 3.315000, lon: 117.580000, alamat: "Jl. Bhayangkara, Tarakan" },
+            { kode: "TEZ", nama: "TEGAL (TEZ)", region: "JAWA", lat: -6.874400, lon: 109.143000, alamat: "Ruko Palm Town House, Tegal" },
+            { kode: "TGO", nama: "TENGGARONG (TGO)", region: "LUAR JAWA", lat: -0.435000, lon: 116.985000, alamat: "Jl. Pesut No. 22, Tenggarong" },
+            { kode: "TMU", nama: "TUGU MULYO (TMU)", region: "LUAR JAWA", lat: -3.868000, lon: 104.888000, alamat: "Jl. Lintas Timur, Ogan Komering Ilir" },
+            { kode: "WRZ", nama: "WARU (WRZ)", region: "JAWA", lat: -7.363000, lon: 112.726000, alamat: "Ruko Juanda Business Centre, Sidoarjo" },
+            { kode: "YGZ", nama: "YOGYAKARTA (YGZ)", region: "JAWA", lat: -7.795580, lon: 110.369490, alamat: "Yogyakarta" }
+        ];
+
+        const dbPadi = {
+            "Aceh Barat": 5482, "Aceh Barat Daya": 5515,  "Aceh Besar": 5182, "Aceh Jaya": 5386, "Aceh Selatan": 4644, "Aceh Singkil": 3790, "Aceh Tamiang": 4748, "Aceh Tengah": 5483, "Aceh Tenggara": 6225, "Aceh Timur": 5155, "Aceh Utara": 5609, "Agam": 4839, "Alor": 3045, "Asahan": 5956, "Badung": 6930, "Balangan": 3624, "Bandung": 6433, "Bandung Barat": 5398, "Banggai": 4112, "Banggai Kepulauan": 3037, "Banggai Laut": 4176, "Bangkalan": 4782, "Bangli": 5209, "Banjar": 3779, "Banjarnegara": 5690, "Bantaeng": 4566, "Banyu Asin": 5118, "Banyumas": 5280, "Banyuwangi": 5884, "Barito Kuala": 3736, "Barito Selatan": 3127, "Barito Timur": 3817, "Barito Utara": 2569, "Barru": 5398, "Batang": 5479, "Batang Hari": 3785, "Batu Bara": 5820, "Bekasi": 4946, "Belu": 3144, "Bener Meriah": 4893, "Bengkalis": 3867, "Bengkayang": 3421, "Bengkulu Selatan": 4498, "Bengkulu Tengah": 3647, "Bengkulu Utara": 4379, "Berau": 2942, "Bima": 4850, "Bireuen": 6071, "Blitar": 5559, "Blora": 5002, "Bogor": 5973, "Bojonegoro": 5415, "Bolaang Mongondow": 4738, "Bolaang Mongondow Selatan": 4203, "Bolaang Mongondow Timur": 4176, "Bolaang Mongondow Utara": 4203, "Bombana": 4479, "Bondowoso": 5127, "Bone": 4779, "Boyolali": 5570, "Brebes": 5501, "Buleleng": 5504, "Bulukumba": 5056, "Bulungan": 3590, "Bungo": 4398, "Buol": 4107, "Buru": 3849, "Buton": 3625, "Buton Selatan": 3454, "Buton Tengah": 3159, "Buton Utara": 3500, "Ciamis": 5332, "Cianjur": 5991, "Cilacap": 6123, "Cirebon": 6045, "Dairi": 5420, "Deli Serdang": 6244, "Demak": 5936, "Dharmasraya": 4536, "Dompu": 4678, "Donggala": 4849, "Empat Lawang": 4912, "Ende": 4429, "Enrekang": 4559, "Flores Timur": 2036, "Garut": 6351, "Gayo Lues": 5146, "Gianyar": 6106, "Gowa": 4857, "Gresik": 6085, "Grobogan": 6175, "Gunung Mas": 2051, "Hulu Sungai Selatan": 4711, "Hulu Sungai Tengah": 4753, "Hulu Sungai Utara": 5229, "Humbang Hasundutan": 4389, "Indragiri Hilir": 3597, "Indragiri Hulu": 4246, "Indramayu": 6573, "Jember": 5191, "Jembrana": 6317, "Jeneponto": 4775, "Jepara": 5190, "Jombang": 6182, "Kampar": 4101, "Kapuas": 3315, "Kapuas Hulu": 2908, "Karang Asem": 6010, "Karanganyar": 6083, "Karawang": 5689, "Karo": 5456, "Katingan": 3201, "Kaur": 4333, "Kayong Utara": 3582, "Kebumen": 5178, "Kediri": 5708, "Kendal": 5998, "Kepahiang": 4589, "Kepulauan Mentawai": 2651, "Kepulauan Meranti": 3271, "Kepulauan Sangihe": 4303, "Kepulauan Selayar": 4004, "Kepulauan Talaud": 4448, "Kepulauan Tanimbar": 1554, "Kerinci": 5314, "Ketapang": 3750, "Klaten": 5623, "Klungkung": 6235, "Kolaka": 4597, "Kolaka Timur": 4428, "Kolaka Utara": 4069, "Konawe": 4058, "Konawe Kepulauan": 3769, "Konawe Selatan": 3986, "Konawe Utara": 3529, "Kota Balikpapan": 2534, "Kota Banda Aceh": 5079, "Kota Bandar Lampung": 5120, "Kota Bandung": 6959, "Kota Banjar": 6046, "Kota Banjar Baru": 3117, "Kota Banjarmasin": 4257, "Kota Baru": 3989, "Kota Batu": 7272, "Kota Baubau": 4889, "Kota Bekasi": 4286, "Kota Bengkulu": 4894, "Kota Bima": 5389, "Kota Binjai": 4497, "Kota Bitung": 4431, "Kota Blitar": 6484, "Kota Bogor": 5305, "Kota Bukittinggi": 6311, "Kota Cilegon": 5307, "Kota Cimahi": 6138, "Kota Cirebon": 6394, "Kota Denpasar": 6809, "Kota Depok": 5624, "Kota Dumai": 2356, "Kota Gunungsitoli": 4486, "Kota Jambi": 4185, "Kota Kediri": 6319, "Kota Kendari": 4116, "Kota Kotamobagu": 4775, "Kota Kupang": 5050, "Kota Langsa": 5038, "Kota Lhokseumawe": 4317, "Kota Lubuklinggau": 5226, "Kota Madiun": 5758, "Kota Magelang": 5023, "Kota Makassar": 5697, "Kota Malang": 6516, "Kota Manado": 4224, "Kota Mataram": 6614, "Kota Medan": 6029, "Kota Metro": 5705, "Kota Mojokerto": 6040, "Kota Padang": 4861, "Kota Padang Panjang": 5886, "Kota Padangsidimpuan": 5316, "Kota Pagar Alam": 5077, "Kota Palembang": 4558, "Kota Palopo": 5068, "Kota Palu": 4701, "Kota Parepare": 5191, "Kota Pariaman": 4889, "Kota Pasuruan": 5502, "Kota Payakumbuh": 4757, "Kota Pekalongan": 6475, "Kota Pekanbaru": 4111, "Kota Pematang Siantar": 5823, "Kota Pontianak": 3517, "Kota Prabumulih": 3854, "Kota Probolinggo": 6106, "Kota Salatiga": 6644, "Kota Samarinda": 4244, "Kota Sawah Lunto": 5455, "Kota Semarang": 5504, "Kota Serang": 5349, "Kota Singkawang": 3610, "Kota Solok": 5678, "Kota Subulussalam": 4378, "Kota Sukabumi": 5858, "Kota Sungai Penuh": 6181, "Kota Surabaya": 5554, "Kota Surakarta": 5759, "Kota Tangerang": 6217, "Kota Tanjung Balai": 4848, "Kota Tarakan": 3200, "Kota Tasikmalaya": 5419, "Kota Tebing Tinggi": 5868, "Kota Tegal": 6084, "Kota Tomohon": 5938, "Kotawaringin Barat": 3806, "Kotawaringin Timur": 3351, "Kuantan Singingi": 4705, "Kubu Raya": 2894, "Kudus": 5868, "Kuningan": 5381, "Kupang": 5040, "Kutai Barat": 3001, "Kutai Kartanegara": 4093, "Kutai Timur": 3678, "Labuhan Batu": 5254, "Labuhan Batu Selatan": 4129, "Labuhan Batu Utara": 4536, "Lahat": 5097, "Lamandau": 2976, "Lamongan": 5941, "Lampung Barat": 4703, "Lampung Selatan": 5491, "Lampung Tengah": 5701, "Lampung Timur": 5172, "Lampung Utara": 4186, "Landak": 3296, "Langkat": 4858, "Lebak": 4823, "Lebong": 6248, "Lembata": 2934, "Lima Puluh Kota": 4358, "Lombok Barat": 3432, "Lombok Tengah": 5051, "Lombok Timur": 5366, "Lombok Utara": 6078, "Lumajang": 5407, "Luwu": 5359, "Luwu Timur": 5802, "Luwu Utara": 5419, "Madiun": 5958, "Magelang": 5070, "Magetan": 6272, "Mahakam Ulu": 2407, "Majalengka": 5550, "Majene": 5267, "Malaka": 3825, "Malang": 6211, "Malinau": 3751, "Maluku Tengah": 4079, "Mamasa": 3999, "Mamuju": 4920, "Mamuju Tengah": 4709, "Mandailing Natal": 4224, "Manggarai": 4623, "Manggarai Barat": 4475, "Manggarai Timur": 4600, "Maros": 4804, "Melawi": 2994, "Mempawah": 3186, "Merangin": 3836, "Mesuji": 4816, "Minahasa": 4802, "Minahasa Selatan": 4131, "Minahasa Tenggara": 4361, "Minahasa Utara": 3858, "Mojokerto": 6041, "Morowali": 4015, "Morowali Utara": 4161, "Muara Enim": 5111, "Muaro Jambi": 3372, "Mukomuko": 5782, "Muna": 3514, "Muna Barat": 3997, "Murung Raya": 1254, "Musi Banyuasin": 4964, "Musi Rawas": 5833, "Musi Rawas Utara": 3919, "Nagan Raya": 3865, "Nagekeo": 5072, "Ngada": 4925, "Nganjuk": 5811, "Ngawi": 6221, "Nias": 4532, "Nias Barat": 4459, "Nias Selatan": 3533, "Nias Utara": 3553, "Nunukan": 3631, "Ogan Ilir": 4977, "Ogan Komering Ilir": 5917, "Ogan Komering Ulu": 4694, "Ogan Komering Ulu Selatan": 6230, "Ogan Komering Ulu Timur": 6565, "Pacitan": 4770, "Padang Lawas": 3992, "Padang Lawas Utara": 3957, "Padang Pariaman": 4452, "Pakpak Bharat": 4134, "Palangka Raya": 3750, "Pamekasan": 5169, "Pandeglang": 5352, "Pangandaran": 4898, "Pangkajene Dan Kepulauan": 4141, "Parigi Moutong": 4742, "Pasaman": 4404, "Pasaman Barat": 4647, "Pasangkayu": 5272, "Paser": 4663, "Pasuruan": 5429, "Pati": 5463, "Pekalongan": 5502, "Pelalawan": 3974, "Pemalang": 5707, "Penajam Paser Utara": 3636, "Penukal Abab Lematang Ilir": 4307, "Pesawaran": 5291, "Pesisir Barat": 4654, "Pesisir Selatan": 4878, "Pidie": 6262, "Pidie Jaya": 6770, "Pinrang": 6107, "Polewali Mandar": 5521, "Ponorogo": 5982, "Poso": 3685, "Pringsewu": 6353, "Probolinggo": 5353, "Pulang Pisau": 4086, "Purbalingga": 5470, "Purwakarta": 5890, "Purworejo": 5387, "Rejang Lebong": 4686, "Rembang": 4898, "Rokan Hilir": 4435, "Rokan Hulu": 4378, "Rote Ndao": 3889, "Sabu Raijua": 3854, "Sambas": 3057, "Samosir": 5997, "Sampang": 4413, "Sanggau": 2567, "Sarolangun": 4116, "Sekadau": 2890, "Seluma": 4437, "Semarang": 5964, "Seram Bagian Barat": 3229, "Seram Bagian Timur": 3299, "Serang": 5384, "Serdang Bedagai": 6517, "Seruyan": 2760, "Siak": 4415, "Sidenreng Rappang": 5175, "Sidoarjo": 6509, "Sigi": 4709, "Sijunjung": 3856, "Sikka": 3708, "Simalungun": 5742, "Simeulue": 3422, "Sinjai": 4680, "Sintang": 2691, "Situbondo": 5420, "Solok": 4728, "Solok Selatan": 3831, "Soppeng": 5336, "Sragen": 6556, "Subang": 5912, "Sukabumi": 5720, "Sukamara": 3803, "Sukoharjo": 7531, "Sumba Barat": 3682, "Sumba Barat Daya": 3021, "Sumba Tengah": 4271, "Sumba Timur": 3657, "Sumbawa": 5532, "Sumbawa Barat": 4899, "Sumedang": 5500, "Sumenep": 5155, "Tabalong": 4729, "Tabanan": 6066, "Takalar": 4189, "Tana Tidung": 3242, "Tana Toraja": 4528, "Tanah Bumbu": 4026, "Tanah Datar": 4787, "Tanah Laut": 4273, "Tangerang": 5117, "Tanggamus": 5639, "Tanjung Jabung Barat": 4681, "Tanjung Jabung Timur": 3888, "Tapanuli Selatan": 4919, "Tapanuli Tengah": 3950, "Tapanuli Utara": 5129, "Tapin": 4146, "Tasikmalaya": 5329, "Tebo": 4624, "Tegal": 5339, "Temanggung": 6476, "Timor Tengah Selatan": 4439, "Timor Tengah Utara": 3758, "Toba Samosir": 6014, "Tojo Una-Una": 4408, "Toli-Toli": 4698, "Toraja Utara": 5012, "Trenggalek": 5749, "Tuban": 6211, "Tulang Bawang Barat": 4056, "Tulangbawang": 4979, "Tulungagung": 6287, "Wajo": 4766, "Way Kanan": 4789, "Wonogiri": 5276, "Wonosobo": 4984, "Sidrap": 6400
+        };
+
+        // --- MAP SETUP ---
+        const map = L.map('map', { zoomControl: false }).setView([-2.5, 118], 5);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
+
+        let routingControl = null;
+        let covMode = 'alamat';
+        const markCab = L.marker([0,0]).addTo(map);
+        const markNas = L.marker([0,0]);
+
+        // --- INIT ---
+        const selCab = document.getElementById('cabang');
+        dbCabang.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(c); opt.textContent = c.nama;
+            selCab.appendChild(opt);
+        });
+
+        const selPadi = document.getElementById('padiArea');
+        Object.keys(dbPadi).sort().forEach(k => {
+            const opt = document.createElement('option');
+            opt.value = dbPadi[k]; opt.textContent = k;
+            selPadi.appendChild(opt);
+        });
+
+        // --- UI FUNCTIONS ---
+        // FIX: Fungsi ini sekarang cocok dengan HTML (switchTab) dan ID (tool-xxx)
+        function switchTab(id, btn) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            // Gunakan class .tool-section agar sesuai CSS
+            document.querySelectorAll('.tool-section').forEach(c => c.classList.remove('active'));
             
-            if(!coordKons) throw new Error("Lokasi tidak ditemukan");
-
-            let dist = haversine(coordCab.lat, coordCab.lon, coordKons.lat, coordKons.lon);
-            tampilkanHasilCoverage(dist, cab.region);
-
-        } catch (e) {
-            document.getElementById('manualMode').style.display = 'block';
-            let link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-            document.getElementById('linkGmaps').href = link;
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = "🚀 Hitung Jarak";
+            btn.classList.add('active');
+            // Pastikan ID target sesuai dengan HTML (tool-coverage, tool-usia, dst)
+            document.getElementById('tool-' + id).classList.add('active');
         }
-    }
 
-    function smartParser(text) {
-        let kel = text.match(/(?:kel\.|kelurahan|desa)\s+([a-z0-9\s]+?)(?=\s+(?:kec|kab|kota|$))/i);
-        let kec = text.match(/(?:kec\.|kecamatan)\s+([a-z0-9\s]+?)(?=\s+(?:kab|kota|$))/i);
-        let kota = text.match(/(?:kab\/kota\.|kab\.|kabupaten|kota)\s+([a-z0-9\s]+?)(?=\s+(?:prov|$))/i);
-        let parts = [];
-        if(kel) parts.push(kel[1].trim());
-        if(kec) parts.push(kec[1].trim());
-        if(kota) parts.push(kota[1].trim());
-        return parts.length >= 2 ? parts.join(", ") : null;
-    }
+        selCab.addEventListener('change', function() {
+            const inf = document.getElementById('infoCabang');
+            if(this.value) {
+                const d = JSON.parse(this.value);
+                inf.style.display = 'flex'; inf.innerHTML = `🏢 ${d.alamat}`;
+                map.flyTo([d.lat, d.lon], 13);
+                markCab.setLatLng([d.lat, d.lon]).bindPopup(d.nama).openPopup();
+            } else { inf.style.display = 'none'; }
+        });
 
-    async function getCoordinates(addr) {
-        try {
-            let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1`;
-            let res = await fetch(url);
-            let data = await res.json();
-            return data.length > 0 ? { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) } : null;
-        } catch(e) { return null; }
-    }
+        function setCovMode(m) {
+            covMode = m;
+            document.getElementById('btnAlamat').className = m === 'alamat' ? 'toggle-opt active' : 'toggle-opt';
+            document.getElementById('btnKordinat').className = m === 'kordinat' ? 'toggle-opt active' : 'toggle-opt';
+            document.getElementById('boxAlamat').style.display = m === 'alamat' ? 'block' : 'none';
+            document.getElementById('boxKordinat').style.display = m === 'alamat' ? 'none' : 'flex';
+        }
 
-    function hitungManual() {
-        let input = document.getElementById('coordInput').value;
-        let parts = input.split(",");
-        if(parts.length !== 2) { alert("Format Salah!"); return; }
-        
-        let cab = dbCabang.find(c => c.kode === select.value);
-        let dist = haversine(cab.lat, cab.lon, parseFloat(parts[0]), parseFloat(parts[1]));
-        tampilkanHasilCoverage(dist, cab.region);
-        document.getElementById('manualMode').style.display = 'none';
-    }
+        // Trigger animation helper
+        function showResult(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('show-animate');
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add('show-animate');
+        }
 
-    function haversine(lat1, lon1, lat2, lon2) {
-        const R = 6371; 
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
+        // --- HELPER: AGE DETAIL ---
+        function getAgeDetail(dateStr, addMonths = 0) {
+            if(!dateStr) return { str: "-" };
+            const d = new Date(dateStr);
+            const now = new Date();
+            // Logic Tambah Bulan untuk Tenor
+            if(addMonths > 0) now.setMonth(now.getMonth() + addMonths);
 
-    function tampilkanHasilCoverage(dist, region) {
-        let limit = (region === "JABODETABEK") ? 30 : (region === "JAWA") ? 40 : 60;
-        let isOk = dist <= limit;
-        
-        document.getElementById('txtJarak').innerText = dist.toFixed(2) + " Km";
-        document.getElementById('txtLimit').innerText = `${limit} Km (${region})`;
-        
-        let badge = document.getElementById('badgeStatus');
-        badge.className = isOk ? "badge bg-ok" : "badge bg-fail";
-        badge.innerText = isOk ? "✅ APPROVED (MASUK AREA)" : "❌ REJECT (DILUAR JANGKAUAN)";
-        
-        document.getElementById('resultBox').style.display = 'block';
-    }
+            let years = now.getFullYear() - d.getFullYear();
+            let months = now.getMonth() - d.getMonth();
+            let days = now.getDate() - d.getDate();
 
-    /* =========================================
-       LOGIKA 2: KALKULATOR PADI
-    ========================================= */
-    const dbWilayah = {
-        "Aceh Barat": 5482, "Bandung": 6433, "Bekasi": 4946, "Bogor": 5973, 
-        "Cianjur": 5991, "Cilacap": 6123, "Cirebon": 6045, "Gresik": 6085, 
-        "Karawang": 7200, "Subang": 6800, "Indramayu": 6573, "Sragen": 6400,
-        "Ngawi": 6300, "Lamongan": 6200, "Banyuwangi": 5884
-        // ... (Tambahkan data lengkap BPS di sini jika perlu)
-    };
+            if (days < 0) { 
+                months--; 
+                // Hitung hari bulan sebelumnya
+                const prev = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prev.getDate(); 
+            }
+            if (months < 0) { years--; months += 12; }
+            
+            return { 
+                years, months, days, 
+                str: `${years} Tahun ${months} Bulan ${days} Hari` 
+            };
+        }
 
-    const elmKota = document.getElementById('kota');
-    Object.keys(dbWilayah).sort().forEach(k => {
-        let opt = document.createElement('option');
-        opt.value = dbWilayah[k]; opt.text = k; elmKota.add(opt);
-    });
+        // --- 1. HITUNG COVERAGE ---
+        async function hitungCoverage() {
+            const val = selCab.value;
+            const res = document.getElementById('resCov');
+            const load = document.getElementById('loadCov');
+            
+            res.classList.remove('show-animate');
+            if(!val) { alert("Pilih Cabang!"); return; }
+            
+            const dat = JSON.parse(val);
+            let lat, lon;
+            load.style.display = 'block';
 
-    function isiProduktivitas() {
-        let val = document.getElementById('kota').value;
-        if(val) document.getElementById('prod').value = val;
-        hitungPadi();
-    }
+            try {
+                if(covMode === 'alamat') {
+                    const txt = document.getElementById('alamat').value;
+                    if(!txt) { alert("Isi Alamat!"); load.style.display='none'; return; }
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(txt)}`;
+                    const resp = await fetch(url);
+                    const geo = await resp.json();
+                    if(!geo.length) { alert("Alamat tidak ketemu!"); load.style.display='none'; return; }
+                    lat = parseFloat(geo[0].lat); lon = parseFloat(geo[0].lon);
+                } else {
+                    lat = parseFloat(document.getElementById('latInput').value);
+                    lon = parseFloat(document.getElementById('lonInput').value);
+                    if(!lat) { alert("Isi Koordinat!"); load.style.display='none'; return; }
+                }
 
-    function hitungPadi() {
-        let prod = parseFloat(document.getElementById('prod').value) || 0;
-        let luas = parseFloat(document.getElementById('luas').value) || 0;
-        let harga = parseFloat(document.getElementById('harga').value) || 0;
-        let siklus = parseFloat(document.getElementById('siklus').value) || 0;
-        let margin = parseFloat(document.getElementById('margin').value) || 0;
+                if(!map.hasLayer(markNas)) markNas.addTo(map);
+                markNas.setLatLng([lat, lon]);
 
-        let omsetPerPanen = prod * luas * harga;
-        let incomeTahunan = omsetPerPanen * siklus * (margin / 100);
-        let incomeBulan = incomeTahunan / 12;
+                if(routingControl) map.removeControl(routingControl);
+                routingControl = L.Routing.control({
+                    waypoints: [L.latLng(dat.lat, dat.lon), L.latLng(lat, lon)],
+                    routeWhileDragging: false, show: false, createMarker: function() { return null; },
+                    lineOptions: { styles: [{ color: '#F8991D', weight: 6 }] }
+                }).addTo(map);
 
-        document.getElementById('txtOmset').innerText = "Rp " + Math.round(omsetPerPanen).toLocaleString('id-ID');
-        document.getElementById('txtIncomeBulan').innerText = "Rp " + Math.round(incomeBulan).toLocaleString('id-ID');
-    }
-</script>
+                routingControl.on('routesfound', function(e) {
+                    const r = e.routes[0];
+                    const km = (r.summary.totalDistance / 1000).toFixed(2);
+                    
+                    // Waktu Tempuh 35km/jam Constant
+                    const hours = parseFloat(km) / 35;
+                    const mins = Math.round(hours * 60);
+                    const h = Math.floor(mins / 60);
+                    const m = mins % 60;
+                    const timeStr = h > 0 ? `${h} Jam ${m} Menit` : `${m} Menit`;
 
+                    let lim = 20;
+                    if(dat.region === "JABODETABEK") lim = 30;
+                    else if(dat.region === "JAWA") lim = 40;
+                    else if(dat.region === "LUAR JAWA") lim = 60;
+
+                    load.style.display = 'none';
+                    document.getElementById('outJarak').innerText = `${km} KM`;
+                    document.getElementById('outRegion').innerText = dat.region;
+                    document.getElementById('outMax').innerText = `${lim} KM`;
+                    document.getElementById('outWaktu').innerText = timeStr;
+
+                    const head = document.getElementById('headCov');
+                    if(parseFloat(km) <= lim) {
+                        head.className = 'card-header bg-ok'; head.innerText = "✅ APPROVED";
+                    } else {
+                        head.className = 'card-header bg-fail'; head.innerText = "❌ REJECTED";
+                    }
+                    showResult('resCov');
+                    map.fitBounds(L.latLngBounds([[dat.lat, dat.lon],[lat, lon]]), {padding:[50,50]});
+                });
+                
+                routingControl.on('routingerror', function() { alert("Gagal Rute (Terlalu jauh/beda pulau)"); load.style.display='none'; });
+
+            } catch(e) { console.log(e); load.style.display='none'; }
+        }
+
+        // --- 2. HITUNG USIA ---
+        function hitungUsia() {
+            const p = document.getElementById('dobP').value;
+            const pas = document.getElementById('dobPas').value;
+            const ten = parseInt(document.getElementById('tenor').value);
+
+            if(!p || !ten) { alert("Isi data utama!"); return; }
+
+            const uP = getAgeDetail(p);
+            const uPas = getAgeDetail(pas);
+            const uPEnd = getAgeDetail(p, ten);
+            const uPasEnd = pas ? getAgeDetail(pas, ten) : { str: "-", years: 0 };
+
+            document.getElementById('outUP').innerText = uP.str;
+            document.getElementById('outUPas').innerText = uPas.str;
+            document.getElementById('outUPEnd').innerText = uPEnd.str;
+            document.getElementById('outUPasEnd').innerText = uPasEnd.str;
+
+            const head = document.getElementById('headUsia');
+            let reject = false;
+            // Cek jika usia > 60 TAHUN (Bukan >=, tapi jika sudah lewat 60 tahun 1 hari pun reject)
+            if(uPEnd.years >= 60 && (uPEnd.months > 0 || uPEnd.days > 0)) reject = true;
+            if(pas && (uPasEnd.years >= 60 && (uPasEnd.months > 0 || uPasEnd.days > 0))) reject = true;
+
+            if(reject) { head.className = "card-header bg-fail"; head.innerText = "❌ REJECTED (> 60 Tahun)"; }
+            else { head.className = "card-header bg-ok"; head.innerText = "✅ APPROVED"; }
+            
+            showResult('resUsia');
+        }
+
+        // --- 3. HITUNG PADI ---
+        function hitungPadi() {
+            const prod = parseFloat(document.getElementById('padiArea').value);
+            const luas = parseFloat(document.getElementById('luas').value);
+            const harga = parseFloat(document.getElementById('harga').value);
+            const freq = parseInt(document.getElementById('freq').value);
+
+            if(!prod || !luas || !harga) { alert("Lengkapi data!"); return; }
+
+            const total = luas * prod;
+            const gross = total * harga;
+            const net = gross * 0.40;
+            const month = (net * freq) / 12;
+
+            const fmt = n => "Rp " + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+            document.getElementById('outProd').innerText = prod + " Kg/Ha";
+            document.getElementById('outTotal').innerText = total.toLocaleString() + " Kg";
+            document.getElementById('outGross').innerText = fmt(gross);
+            document.getElementById('outNet').innerText = fmt(net);
+            document.getElementById('outMonth').innerText = fmt(month);
+
+            showResult('resPadi');
+        }
+    </script>
 </body>
 </html>
