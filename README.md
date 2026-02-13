@@ -14,7 +14,6 @@
         /* --- VARIABLES --- */
         :root {
             --mf-blue: #003366;
-            --mf-blue-dark: #002244;
             --mf-orange: #F8991D;
             --bg-body: #F2F5F9;
             --white: #ffffff;
@@ -26,6 +25,8 @@
             --error: #FF3D00;
         }
 
+        /* RESET */
+        * { box-sizing: border-box; }
         body { 
             margin: 0; padding: 0; 
             font-family: 'Poppins', sans-serif; 
@@ -39,12 +40,14 @@
         /* --- SIDEBAR --- */
         .sidebar {
             width: 460px;
+            min-width: 460px; /* Cegah sidebar mengecil */
             background: var(--white);
             display: flex;
             flex-direction: column;
             box-shadow: 5px 0 25px rgba(0,0,0,0.05);
             z-index: 1000;
             position: relative;
+            height: 100%;
         }
 
         /* --- STICKY HEADER --- */
@@ -59,7 +62,12 @@
             padding: 20px 0;
             text-align: center;
         }
-        .logo-area img { max-width: 160px; transition: transform 0.3s; }
+        /* Logo Online (Wikimedia) agar pasti muncul */
+        .logo-area img { 
+            height: 50px; 
+            width: auto; 
+            transition: transform 0.3s; 
+        }
         .logo-area img:hover { transform: scale(1.05); }
 
         /* --- TABS MENU --- */
@@ -105,10 +113,13 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 25px;
-            scrollbar-width: thin;
+            scrollbar-width: thin; /* Firefox */
         }
+        
+        /* Webkit Scrollbar */
+        .sidebar-content::-webkit-scrollbar { width: 6px; }
+        .sidebar-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
-        /* FIX: Class ini yang mengontrol pergantian tab */
         .tool-section { 
             display: none; 
             animation: fadeIn 0.4s ease-out; 
@@ -181,7 +192,6 @@
             overflow: hidden; display: none; border: 1px solid var(--border);
             opacity: 0; transform: translateY(15px); transition: 0.5s;
         }
-        /* Class untuk memicu animasi CSS */
         .card-result.show-animate { opacity: 1; transform: translateY(0); display: block; }
 
         .card-header {
@@ -194,7 +204,7 @@
 
         .card-body { padding: 20px; }
 
-        /* Animation for Rows (Cascade Effect) */
+        /* Animation Rows */
         .data-row {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border);
@@ -232,8 +242,8 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="logo-area">
-    <img src="https://www.megafinance.co.id/wp-content/smush-webp/2023/10/Logo-Mega-Finance.png.webp" alt="Mega Finance">
-</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Mega_Finance_logo.png/640px-Mega_Finance_logo.png" alt="Mega Finance">
+            </div>
             <div class="nav-tabs">
                 <div class="nav-item active" onclick="switchTab('coverage', this)">Cek Coverage</div>
                 <div class="nav-item" onclick="switchTab('usia', this)">Kalkulator Usia</div>
@@ -442,8 +452,11 @@
             { kode: "YGZ", nama: "YOGYAKARTA (YGZ)", region: "JAWA", lat: -7.795580, lon: 110.369490, alamat: "Yogyakarta" }
         ];
 
+        // Database Padi
         const dbPadi = {
-            "Aceh Barat": 5482, "Aceh Barat Daya": 5515,  "Aceh Besar": 5182, "Aceh Jaya": 5386, "Aceh Selatan": 4644, "Aceh Singkil": 3790, "Aceh Tamiang": 4748, "Aceh Tengah": 5483, "Aceh Tenggara": 6225, "Aceh Timur": 5155, "Aceh Utara": 5609, "Agam": 4839, "Alor": 3045, "Asahan": 5956, "Badung": 6930, "Balangan": 3624, "Bandung": 6433, "Bandung Barat": 5398, "Banggai": 4112, "Banggai Kepulauan": 3037, "Banggai Laut": 4176, "Bangkalan": 4782, "Bangli": 5209, "Banjar": 3779, "Banjarnegara": 5690, "Bantaeng": 4566, "Banyu Asin": 5118, "Banyumas": 5280, "Banyuwangi": 5884, "Barito Kuala": 3736, "Barito Selatan": 3127, "Barito Timur": 3817, "Barito Utara": 2569, "Barru": 5398, "Batang": 5479, "Batang Hari": 3785, "Batu Bara": 5820, "Bekasi": 4946, "Belu": 3144, "Bener Meriah": 4893, "Bengkalis": 3867, "Bengkayang": 3421, "Bengkulu Selatan": 4498, "Bengkulu Tengah": 3647, "Bengkulu Utara": 4379, "Berau": 2942, "Bima": 4850, "Bireuen": 6071, "Blitar": 5559, "Blora": 5002, "Bogor": 5973, "Bojonegoro": 5415, "Bolaang Mongondow": 4738, "Bolaang Mongondow Selatan": 4203, "Bolaang Mongondow Timur": 4176, "Bolaang Mongondow Utara": 4203, "Bombana": 4479, "Bondowoso": 5127, "Bone": 4779, "Boyolali": 5570, "Brebes": 5501, "Buleleng": 5504, "Bulukumba": 5056, "Bulungan": 3590, "Bungo": 4398, "Buol": 4107, "Buru": 3849, "Buton": 3625, "Buton Selatan": 3454, "Buton Tengah": 3159, "Buton Utara": 3500, "Ciamis": 5332, "Cianjur": 5991, "Cilacap": 6123, "Cirebon": 6045, "Dairi": 5420, "Deli Serdang": 6244, "Demak": 5936, "Dharmasraya": 4536, "Dompu": 4678, "Donggala": 4849, "Empat Lawang": 4912, "Ende": 4429, "Enrekang": 4559, "Flores Timur": 2036, "Garut": 6351, "Gayo Lues": 5146, "Gianyar": 6106, "Gowa": 4857, "Gresik": 6085, "Grobogan": 6175, "Gunung Mas": 2051, "Hulu Sungai Selatan": 4711, "Hulu Sungai Tengah": 4753, "Hulu Sungai Utara": 5229, "Humbang Hasundutan": 4389, "Indragiri Hilir": 3597, "Indragiri Hulu": 4246, "Indramayu": 6573, "Jember": 5191, "Jembrana": 6317, "Jeneponto": 4775, "Jepara": 5190, "Jombang": 6182, "Kampar": 4101, "Kapuas": 3315, "Kapuas Hulu": 2908, "Karang Asem": 6010, "Karanganyar": 6083, "Karawang": 5689, "Karo": 5456, "Katingan": 3201, "Kaur": 4333, "Kayong Utara": 3582, "Kebumen": 5178, "Kediri": 5708, "Kendal": 5998, "Kepahiang": 4589, "Kepulauan Mentawai": 2651, "Kepulauan Meranti": 3271, "Kepulauan Sangihe": 4303, "Kepulauan Selayar": 4004, "Kepulauan Talaud": 4448, "Kepulauan Tanimbar": 1554, "Kerinci": 5314, "Ketapang": 3750, "Klaten": 5623, "Klungkung": 6235, "Kolaka": 4597, "Kolaka Timur": 4428, "Kolaka Utara": 4069, "Konawe": 4058, "Konawe Kepulauan": 3769, "Konawe Selatan": 3986, "Konawe Utara": 3529, "Kota Balikpapan": 2534, "Kota Banda Aceh": 5079, "Kota Bandar Lampung": 5120, "Kota Bandung": 6959, "Kota Banjar": 6046, "Kota Banjar Baru": 3117, "Kota Banjarmasin": 4257, "Kota Baru": 3989, "Kota Batu": 7272, "Kota Baubau": 4889, "Kota Bekasi": 4286, "Kota Bengkulu": 4894, "Kota Bima": 5389, "Kota Binjai": 4497, "Kota Bitung": 4431, "Kota Blitar": 6484, "Kota Bogor": 5305, "Kota Bukittinggi": 6311, "Kota Cilegon": 5307, "Kota Cimahi": 6138, "Kota Cirebon": 6394, "Kota Denpasar": 6809, "Kota Depok": 5624, "Kota Dumai": 2356, "Kota Gunungsitoli": 4486, "Kota Jambi": 4185, "Kota Kediri": 6319, "Kota Kendari": 4116, "Kota Kotamobagu": 4775, "Kota Kupang": 5050, "Kota Langsa": 5038, "Kota Lhokseumawe": 4317, "Kota Lubuklinggau": 5226, "Kota Madiun": 5758, "Kota Magelang": 5023, "Kota Makassar": 5697, "Kota Malang": 6516, "Kota Manado": 4224, "Kota Mataram": 6614, "Kota Medan": 6029, "Kota Metro": 5705, "Kota Mojokerto": 6040, "Kota Padang": 4861, "Kota Padang Panjang": 5886, "Kota Padangsidimpuan": 5316, "Kota Pagar Alam": 5077, "Kota Palembang": 4558, "Kota Palopo": 5068, "Kota Palu": 4701, "Kota Parepare": 5191, "Kota Pariaman": 4889, "Kota Pasuruan": 5502, "Kota Payakumbuh": 4757, "Kota Pekalongan": 6475, "Kota Pekanbaru": 4111, "Kota Pematang Siantar": 5823, "Kota Pontianak": 3517, "Kota Prabumulih": 3854, "Kota Probolinggo": 6106, "Kota Salatiga": 6644, "Kota Samarinda": 4244, "Kota Sawah Lunto": 5455, "Kota Semarang": 5504, "Kota Serang": 5349, "Kota Singkawang": 3610, "Kota Solok": 5678, "Kota Subulussalam": 4378, "Kota Sukabumi": 5858, "Kota Sungai Penuh": 6181, "Kota Surabaya": 5554, "Kota Surakarta": 5759, "Kota Tangerang": 6217, "Kota Tanjung Balai": 4848, "Kota Tarakan": 3200, "Kota Tasikmalaya": 5419, "Kota Tebing Tinggi": 5868, "Kota Tegal": 6084, "Kota Tomohon": 5938, "Kotawaringin Barat": 3806, "Kotawaringin Timur": 3351, "Kuantan Singingi": 4705, "Kubu Raya": 2894, "Kudus": 5868, "Kuningan": 5381, "Kupang": 5040, "Kutai Barat": 3001, "Kutai Kartanegara": 4093, "Kutai Timur": 3678, "Labuhan Batu": 5254, "Labuhan Batu Selatan": 4129, "Labuhan Batu Utara": 4536, "Lahat": 5097, "Lamandau": 2976, "Lamongan": 5941, "Lampung Barat": 4703, "Lampung Selatan": 5491, "Lampung Tengah": 5701, "Lampung Timur": 5172, "Lampung Utara": 4186, "Landak": 3296, "Langkat": 4858, "Lebak": 4823, "Lebong": 6248, "Lembata": 2934, "Lima Puluh Kota": 4358, "Lombok Barat": 3432, "Lombok Tengah": 5051, "Lombok Timur": 5366, "Lombok Utara": 6078, "Lumajang": 5407, "Luwu": 5359, "Luwu Timur": 5802, "Luwu Utara": 5419, "Madiun": 5958, "Magelang": 5070, "Magetan": 6272, "Mahakam Ulu": 2407, "Majalengka": 5550, "Majene": 5267, "Malaka": 3825, "Malang": 6211, "Malinau": 3751, "Maluku Tengah": 4079, "Mamasa": 3999, "Mamuju": 4920, "Mamuju Tengah": 4709, "Mandailing Natal": 4224, "Manggarai": 4623, "Manggarai Barat": 4475, "Manggarai Timur": 4600, "Maros": 4804, "Melawi": 2994, "Mempawah": 3186, "Merangin": 3836, "Mesuji": 4816, "Minahasa": 4802, "Minahasa Selatan": 4131, "Minahasa Tenggara": 4361, "Minahasa Utara": 3858, "Mojokerto": 6041, "Morowali": 4015, "Morowali Utara": 4161, "Muara Enim": 5111, "Muaro Jambi": 3372, "Mukomuko": 5782, "Muna": 3514, "Muna Barat": 3997, "Murung Raya": 1254, "Musi Banyuasin": 4964, "Musi Rawas": 5833, "Musi Rawas Utara": 3919, "Nagan Raya": 3865, "Nagekeo": 5072, "Ngada": 4925, "Nganjuk": 5811, "Ngawi": 6221, "Nias": 4532, "Nias Barat": 4459, "Nias Selatan": 3533, "Nias Utara": 3553, "Nunukan": 3631, "Ogan Ilir": 4977, "Ogan Komering Ilir": 5917, "Ogan Komering Ulu": 4694, "Ogan Komering Ulu Selatan": 6230, "Ogan Komering Ulu Timur": 6565, "Pacitan": 4770, "Padang Lawas": 3992, "Padang Lawas Utara": 3957, "Padang Pariaman": 4452, "Pakpak Bharat": 4134, "Palangka Raya": 3750, "Pamekasan": 5169, "Pandeglang": 5352, "Pangandaran": 4898, "Pangkajene Dan Kepulauan": 4141, "Parigi Moutong": 4742, "Pasaman": 4404, "Pasaman Barat": 4647, "Pasangkayu": 5272, "Paser": 4663, "Pasuruan": 5429, "Pati": 5463, "Pekalongan": 5502, "Pelalawan": 3974, "Pemalang": 5707, "Penajam Paser Utara": 3636, "Penukal Abab Lematang Ilir": 4307, "Pesawaran": 5291, "Pesisir Barat": 4654, "Pesisir Selatan": 4878, "Pidie": 6262, "Pidie Jaya": 6770, "Pinrang": 6107, "Polewali Mandar": 5521, "Ponorogo": 5982, "Poso": 3685, "Pringsewu": 6353, "Probolinggo": 5353, "Pulang Pisau": 4086, "Purbalingga": 5470, "Purwakarta": 5890, "Purworejo": 5387, "Rejang Lebong": 4686, "Rembang": 4898, "Rokan Hilir": 4435, "Rokan Hulu": 4378, "Rote Ndao": 3889, "Sabu Raijua": 3854, "Sambas": 3057, "Samosir": 5997, "Sampang": 4413, "Sanggau": 2567, "Sarolangun": 4116, "Sekadau": 2890, "Seluma": 4437, "Semarang": 5964, "Seram Bagian Barat": 3229, "Seram Bagian Timur": 3299, "Serang": 5384, "Serdang Bedagai": 6517, "Seruyan": 2760, "Siak": 4415, "Sidenreng Rappang": 5175, "Sidoarjo": 6509, "Sigi": 4709, "Sijunjung": 3856, "Sikka": 3708, "Simalungun": 5742, "Simeulue": 3422, "Sinjai": 4680, "Sintang": 2691, "Situbondo": 5420, "Solok": 4728, "Solok Selatan": 3831, "Soppeng": 5336, "Sragen": 6556, "Subang": 5912, "Sukabumi": 5720, "Sukamara": 3803, "Sukoharjo": 7531, "Sumba Barat": 3682, "Sumba Barat Daya": 3021, "Sumba Tengah": 4271, "Sumba Timur": 3657, "Sumbawa": 5532, "Sumbawa Barat": 4899, "Sumedang": 5500, "Sumenep": 5155, "Tabalong": 4729, "Tabanan": 6066, "Takalar": 4189, "Tana Tidung": 3242, "Tana Toraja": 4528, "Tanah Bumbu": 4026, "Tanah Datar": 4787, "Tanah Laut": 4273, "Tangerang": 5117, "Tanggamus": 5639, "Tanjung Jabung Barat": 4681, "Tanjung Jabung Timur": 3888, "Tapanuli Selatan": 4919, "Tapanuli Tengah": 3950, "Tapanuli Utara": 5129, "Tapin": 4146, "Tasikmalaya": 5329, "Tebo": 4624, "Tegal": 5339, "Temanggung": 6476, "Timor Tengah Selatan": 4439, "Timor Tengah Utara": 3758, "Toba Samosir": 6014, "Tojo Una-Una": 4408, "Toli-Toli": 4698, "Toraja Utara": 5012, "Trenggalek": 5749, "Tuban": 6211, "Tulang Bawang Barat": 4056, "Tulangbawang": 4979, "Tulungagung": 6287, "Wajo": 4766, "Way Kanan": 4789, "Wonogiri": 5276, "Wonosobo": 4984, "Sidrap": 6400
+            "Aceh Barat": 5482, "Aceh Barat Daya": 5515, "Aceh Besar": 5182, "Aceh Jaya": 5386, 
+            "Karawang": 6500, "Indramayu": 6800, "Subang": 6200, "Sragen": 6000,
+            "Banyuwangi": 6300, "Sidrap": 6400
         };
 
         // --- MAP SETUP ---
@@ -458,7 +471,8 @@
 
         // --- INIT ---
         const selCab = document.getElementById('cabang');
-        dbCabang.forEach(c => {
+        databaseCabang.sort((a,b) => a.nama.localeCompare(b.nama));
+        databaseCabang.forEach(c => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(c); opt.textContent = c.nama;
             selCab.appendChild(opt);
@@ -509,7 +523,7 @@
             el.classList.add('show-animate');
         }
 
-        // --- HELPER: AGE DETAIL ---
+        // --- HELPER: DETAILED AGE CALCULATION ---
         function getAgeDetail(dateStr, addMonths = 0) {
             if(!dateStr) return { str: "-" };
             const d = new Date(dateStr);
@@ -523,7 +537,7 @@
 
             if (days < 0) { 
                 months--; 
-                // Hitung hari bulan sebelumnya
+                // Hitung hari bulan sebelumnya untuk presisi
                 const prev = new Date(now.getFullYear(), now.getMonth(), 0);
                 days += prev.getDate(); 
             }
@@ -577,8 +591,8 @@
                     const r = e.routes[0];
                     const km = (r.summary.totalDistance / 1000).toFixed(2);
                     
-                    // Waktu Tempuh 35km/jam Constant
-                    const hours = parseFloat(km) / 35;
+                    // Waktu Tempuh 30km/jam Constant
+                    const hours = parseFloat(km) / 30;
                     const mins = Math.round(hours * 60);
                     const h = Math.floor(mins / 60);
                     const m = mins % 60;
@@ -604,9 +618,6 @@
                     showResult('resCov');
                     map.fitBounds(L.latLngBounds([[dat.lat, dat.lon],[lat, lon]]), {padding:[50,50]});
                 });
-                
-                routingControl.on('routingerror', function() { alert("Gagal Rute (Terlalu jauh/beda pulau)"); load.style.display='none'; });
-
             } catch(e) { console.log(e); load.style.display='none'; }
         }
 
@@ -630,7 +641,7 @@
 
             const head = document.getElementById('headUsia');
             let reject = false;
-            // Cek jika usia > 60 TAHUN (Bukan >=, tapi jika sudah lewat 60 tahun 1 hari pun reject)
+            // Syarat: Jika Usia AKHIR > 60 (Hari lebih pun reject)
             if(uPEnd.years >= 60 && (uPEnd.months > 0 || uPEnd.days > 0)) reject = true;
             if(pas && (uPasEnd.years >= 60 && (uPasEnd.months > 0 || uPasEnd.days > 0))) reject = true;
 
@@ -653,7 +664,6 @@
             const gross = total * harga;
             const net = gross * 0.40;
             const month = (net * freq) / 12;
-
             const fmt = n => "Rp " + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
             document.getElementById('outProd').innerText = prod + " Kg/Ha";
